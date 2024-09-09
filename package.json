@@ -1,0 +1,32 @@
+{
+  "name": "ziadah-plugin",
+  "version": "1.0.0",
+  "description": "A customizable e-commerce plugin for Ziadah",
+  "main": "dist/bundle.js",
+  "scripts": {
+    "dev": "USE_MOCK_DATA=true NODE_ENV=development rollup -c -w",
+    "build": "USE_MOCK_DATA=false NODE_ENV=production rollup -c",
+    "test": "jest"
+  },
+  "keywords": [
+    "e-commerce",
+    "plugin",
+    "ziadah"
+  ],
+  "author": "MiniNaim",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.15.0",
+    "@babel/preset-env": "^7.15.0",
+    "@rollup/plugin-babel": "^5.3.0",
+    "@rollup/plugin-commonjs": "^20.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.4",
+    "@rollup/plugin-replace": "^5.0.7",
+    "rollup": "^2.56.3",
+    "rollup-plugin-terser": "^7.0.2",
+    "jest": "^27.0.6"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  }
+}

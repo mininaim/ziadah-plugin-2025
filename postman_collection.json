@@ -1,0 +1,503 @@
+{
+	"info": {
+		"_postman_id": "5ac7b005-0c53-4ae8-b709-4c17db6d2938",
+		"name": "store front",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26534969",
+		"_collection_link": "https://ziadah.postman.co/workspace/Ziadah~573bab48-a0b9-4cba-a380-337c61a9cd2c/collection/26534969-5ac7b005-0c53-4ae8-b709-4c17db6d2938?action=share&source=collection_link&creator=26534969"
+	},
+	"item": [
+		{
+			"name": "APIs",
+			"item": [
+				{
+					"name": "Events",
+					"item": [
+						{
+							"name": "Show Campaign Details",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/zid/store-events?store-id=19a5532d-8aa1-4066-bd1c-1efa33dc7cbe&event-id=3",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"zid",
+										"store-events"
+									],
+									"query": [
+										{
+											"key": "store-id",
+											"value": "19a5532d-8aa1-4066-bd1c-1efa33dc7cbe"
+										},
+										{
+											"key": "event-id",
+											"value": "3",
+											"description": "1 => Starting the checkout\n2 => Add product to cart\n3 => Delete product from the cart\n4 => Exit a product page\n5 => Viewing a product page\n6 => Placed order\n"
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "No Campaign Found response",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{BASE_URL}}/zid/store-events?store-id=251073&event-id=2",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"zid",
+												"store-events"
+											],
+											"query": [
+												{
+													"key": "store-id",
+													"value": "251073"
+												},
+												{
+													"key": "event-id",
+													"value": "2",
+													"description": "1 => Starting the checkout\n2 => Add product to cart\n3 => Delete product from the cart\n4 => Exit a product page\n5 => Viewing a product page\n6 => Placed order\n"
+												}
+											]
+										}
+									},
+									"status": "Not Found",
+									"code": 404,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Jul 2023 18:50:48 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Jul 2023 18:50:48 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.1.11"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "X-RateLimit-Limit",
+											"value": "60"
+										},
+										{
+											"key": "X-RateLimit-Remaining",
+											"value": "58"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"is_success\": false,\n    \"status_code\": 404,\n    \"message\": \"No campaign found.\",\n    \"errors\": null\n}"
+								},
+								{
+									"name": "Invalid store or event parameters",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{BASE_URL}}/zid/store-events?event-id=2",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"zid",
+												"store-events"
+											],
+											"query": [
+												{
+													"key": "store-id",
+													"value": "251073",
+													"disabled": true
+												},
+												{
+													"key": "event-id",
+													"value": "2",
+													"description": "1 => Starting the checkout\n2 => Add product to cart\n3 => Delete product from the cart\n4 => Exit a product page\n5 => Viewing a product page\n6 => Placed order\n"
+												}
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Jul 2023 18:52:33 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Jul 2023 18:52:33 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.1.11"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "X-RateLimit-Limit",
+											"value": "60"
+										},
+										{
+											"key": "X-RateLimit-Remaining",
+											"value": "59"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"is_success\": false,\n    \"status_code\": 400,\n    \"message\": \"Invalid store or event parameters.\",\n    \"errors\": null\n}"
+								},
+								{
+									"name": "Success response",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{BASE_URL}}/zid/store-events?store-id=251073&event-id=2",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"zid",
+												"store-events"
+											],
+											"query": [
+												{
+													"key": "store-id",
+													"value": "251073"
+												},
+												{
+													"key": "event-id",
+													"value": "2",
+													"description": "1 => Starting the checkout\n2 => Add product to cart\n3 => Delete product from the cart\n4 => Exit a product page\n5 => Viewing a product page\n6 => Placed order\n"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Date",
+											"value": "Sat, 15 Jul 2023 19:01:04 GMT"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Transfer-Encoding",
+											"value": "chunked"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "X-RateLimit-Limit",
+											"value": "60"
+										},
+										{
+											"key": "X-RateLimit-Remaining",
+											"value": "57"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "CF-Cache-Status",
+											"value": "DYNAMIC"
+										},
+										{
+											"key": "Report-To",
+											"value": "{\"endpoints\":[{\"url\":\"https:\\/\\/a.nel.cloudflare.com\\/report\\/v3?s=8cqsfKp1sCAnK2rByPDi2zuu1%2F%2FMyDbj3ZzNKqLHZXihFzlbkkqns1v6O3OQg9XqQc4lymb637MXyRsFmSAw%2FW8W%2Fl3COElyunFPPztTilvvFAp7gjxYrApVoGlEN3O%2FuTl2VFc%3D\"}],\"group\":\"cf-nel\",\"max_age\":604800}"
+										},
+										{
+											"key": "NEL",
+											"value": "{\"success_fraction\":0,\"report_to\":\"cf-nel\",\"max_age\":604800}"
+										},
+										{
+											"key": "Server",
+											"value": "cloudflare"
+										},
+										{
+											"key": "CF-RAY",
+											"value": "7e74407bbfffbb06-MXP"
+										},
+										{
+											"key": "Content-Encoding",
+											"value": "br"
+										},
+										{
+											"key": "alt-svc",
+											"value": "h3=\":443\"; ma=86400"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"is_success\": true,\n    \"status_code\": 200,\n    \"message\": \"\",\n    \"data\": {\n        \"id\": 1,\n        \"title\": \"National Day 1 Add To Cart\",\n        \"status\": {\n            \"value\": 1,\n            \"value_string\": \"Active\"\n        },\n        \"trigger_product_type\": {\n            \"value\": 1,\n            \"value_string\": \"All Products\"\n        },\n        \"priority\": 1,\n        \"event\": {\n            \"id\": 2,\n            \"title\": {\n                \"en\": \"Add product to cart\",\n                \"ar\": \"إضافة منتج للسلة\"\n            },\n            \"description\": {\n                \"en\": \"Once a product is added to the cart, you can target customer directly .\",\n                \"ar\": \"بمجرد إضافة المنتج المحدد للسلة يمكنك استهداف العميل مباشرة.\"\n            }\n        },\n        \"type\": {\n            \"id\": 1,\n            \"title\": {\n                \"en\": \"Up-Selling\",\n                \"ar\": \"البيع المكمل\"\n            },\n            \"description\": {\n                \"en\": \"Is the practice of encouraging customers to purchase a comparable higher-end product than the one in question\",\n                \"ar\": \"تريد من العميل أن يستبدل المنتج بآخر ذو قيمة أعلي\"\n            }\n        },\n        \"style\": {\n            \"id\": 2,\n            \"title\": {\n                \"en\": \"Popup Card\",\n                \"ar\": \"نافذة منبثقة\"\n            },\n            \"description\": {\n                \"en\": \"A card will appear after customer add the selected product in the cart\",\n                \"ar\": \"ستظهر النافذة بعد إضافة العميل للمنتج المحدد في سلة التسوق\"\n            }\n        },\n        \"card\": {\n            \"id\": 1,\n            \"title\": {\n                \"en\": \"test title\",\n                \"ar\": \"عنوان تيست\"\n            },\n            \"description\": {\n                \"en\": \"test desc\",\n                \"ar\": \"تيست وصف\"\n            }\n        },\n        \"trigger_products\": [],\n        \"action_products\": [\n            {\n                \"id\": 45,\n                \"uuid\": \"413d8d37-73fd-4b55-a1f9-814ffa92f9ef\",\n                \"sku\": \"Z.251073.16823625197568638\",\n                \"store_id\": 251073,\n                \"name\": {\n                    \"en\": \"test 28\",\n                    \"ar\": \"تيست 28\"\n                },\n                \"quantity\": null,\n                \"is_infinite\": true,\n                \"price\": 120,\n                \"sale_price\": null,\n                \"currency\": \"SAR\",\n                \"weight\": {\n                    \"value\": 0,\n                    \"unit\": \"kg\"\n                },\n                \"product_class\": null,\n                \"images\": [\n                    {\n                        \"id\": 23,\n                        \"images\": {\n                            \"medium\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/e0b1c8c5-5404-4dd5-8356-083a56650a89-thumbnail-500x500-70.jpg\",\n                            \"small\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/e0b1c8c5-5404-4dd5-8356-083a56650a89-thumbnail-370x370-70.jpg\",\n                            \"full_size\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/e0b1c8c5-5404-4dd5-8356-083a56650a89-thumbnail-770x770-70.jpg\",\n                            \"thumbnail\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/e0b1c8c5-5404-4dd5-8356-083a56650a89-thumbnail-100x100-70.jpg\",\n                            \"large\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/e0b1c8c5-5404-4dd5-8356-083a56650a89-thumbnail-770x770-70.jpg\"\n                        }\n                    }\n                ],\n                \"child_products\": [],\n                \"attributes\": []\n            },\n            {\n                \"id\": 42,\n                \"uuid\": \"6a0b3e2d-c839-4d73-a5d8-a556398cbca7\",\n                \"sku\": \"Z.251073.16855004207393937\",\n                \"store_id\": 251073,\n                \"name\": {\n                    \"en\": \"test webhook 4\",\n                    \"ar\": \"تيست اضافة ويبهوك 4\"\n                },\n                \"quantity\": null,\n                \"is_infinite\": true,\n                \"price\": 30,\n                \"sale_price\": null,\n                \"currency\": \"SAR\",\n                \"weight\": {\n                    \"value\": 0,\n                    \"unit\": \"kg\"\n                },\n                \"product_class\": null,\n                \"images\": [\n                    {\n                        \"id\": 20,\n                        \"images\": {\n                            \"medium\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/ffd352f2-8edc-4fb3-9a24-ad87b519119b-thumbnail-500x500-70.jpg\",\n                            \"small\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/ffd352f2-8edc-4fb3-9a24-ad87b519119b-thumbnail-370x370-70.jpg\",\n                            \"full_size\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/ffd352f2-8edc-4fb3-9a24-ad87b519119b-thumbnail-770x770-70.jpg\",\n                            \"thumbnail\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/ffd352f2-8edc-4fb3-9a24-ad87b519119b-thumbnail-100x100-70.jpg\",\n                            \"large\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/ffd352f2-8edc-4fb3-9a24-ad87b519119b-thumbnail-770x770-70.jpg\"\n                        }\n                    },\n                    {\n                        \"id\": 21,\n                        \"images\": {\n                            \"medium\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/90366732-2b4a-44ba-b24f-9c81ca578ca1-thumbnail-500x500-70.jpg\",\n                            \"small\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/90366732-2b4a-44ba-b24f-9c81ca578ca1-thumbnail-370x370-70.jpg\",\n                            \"full_size\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/90366732-2b4a-44ba-b24f-9c81ca578ca1-thumbnail-770x770-70.jpg\",\n                            \"thumbnail\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/90366732-2b4a-44ba-b24f-9c81ca578ca1-thumbnail-100x100-70.jpg\",\n                            \"large\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/90366732-2b4a-44ba-b24f-9c81ca578ca1-thumbnail-770x770-70.jpg\"\n                        }\n                    },\n                    {\n                        \"id\": 22,\n                        \"images\": {\n                            \"medium\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/15a778cb-7b3e-472c-a4d1-59345f1f9892-thumbnail-500x500-70.jpg\",\n                            \"small\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/15a778cb-7b3e-472c-a4d1-59345f1f9892-thumbnail-370x370-70.jpg\",\n                            \"full_size\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/15a778cb-7b3e-472c-a4d1-59345f1f9892-thumbnail-770x770-70.jpg\",\n                            \"thumbnail\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/15a778cb-7b3e-472c-a4d1-59345f1f9892-thumbnail-100x100-70.jpg\",\n                            \"large\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/15a778cb-7b3e-472c-a4d1-59345f1f9892-thumbnail-770x770-70.jpg\"\n                        }\n                    }\n                ],\n                \"child_products\": [],\n                \"attributes\": []\n            },\n            {\n                \"id\": 40,\n                \"uuid\": \"36af78aa-a61f-417b-9911-fd1d174b35b0\",\n                \"sku\": \"Z.251073.16852269105836232\",\n                \"store_id\": 251073,\n                \"name\": {\n                    \"en\": \"test add product \",\n                    \"ar\": \"تيست اضافة منتج\"\n                },\n                \"quantity\": null,\n                \"is_infinite\": true,\n                \"price\": 1212,\n                \"sale_price\": null,\n                \"currency\": \"SAR\",\n                \"weight\": {\n                    \"value\": 0,\n                    \"unit\": \"kg\"\n                },\n                \"product_class\": null,\n                \"images\": [\n                    {\n                        \"id\": 18,\n                        \"images\": {\n                            \"medium\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/910d4ff4-e6e4-45b8-ad17-3b39f4f9bedf-thumbnail-500x500-70.jpg\",\n                            \"small\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/910d4ff4-e6e4-45b8-ad17-3b39f4f9bedf-thumbnail-370x370-70.jpg\",\n                            \"full_size\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/910d4ff4-e6e4-45b8-ad17-3b39f4f9bedf-thumbnail-770x770-70.jpg\",\n                            \"thumbnail\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/910d4ff4-e6e4-45b8-ad17-3b39f4f9bedf-thumbnail-100x100-70.jpg\",\n                            \"large\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/910d4ff4-e6e4-45b8-ad17-3b39f4f9bedf-thumbnail-770x770-70.jpg\"\n                        }\n                    },\n                    {\n                        \"id\": 19,\n                        \"images\": {\n                            \"medium\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/4ec8257f-7250-4718-a370-d725abea7ab6-thumbnail-500x500-70.jpg\",\n                            \"small\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/4ec8257f-7250-4718-a370-d725abea7ab6-thumbnail-370x370-70.jpg\",\n                            \"full_size\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/4ec8257f-7250-4718-a370-d725abea7ab6-thumbnail-770x770-70.jpg\",\n                            \"thumbnail\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/4ec8257f-7250-4718-a370-d725abea7ab6-thumbnail-100x100-70.jpg\",\n                            \"large\": \"https://media.zid.store/thumbs/4cbeba83-6ded-431b-a1ee-16ebfdbb8924/4ec8257f-7250-4718-a370-d725abea7ab6-thumbnail-770x770-70.jpg\"\n                        }\n                    }\n                ],\n                \"child_products\": [],\n                \"attributes\": []\n            },\n            {\n                \"id\": 38,\n                \"uuid\": \"cf3338da-7dc5-4be1-8b72-8959c53ba024\",\n                \"sku\": \"Z.251073.16823625627928324\",\n                \"store_id\": 251073,\n                \"name\": {\n                    \"en\": \"test 29\",\n                    \"ar\": \"تيست 29\"\n                },\n                \"quantity\": 822,\n                \"is_infinite\": false,\n                \"price\": 0,\n                \"sale_price\": null,\n                \"currency\": \"SAR\",\n                \"weight\": {\n                    \"value\": 0,\n                    \"unit\": \"kg\"\n                },\n                \"product_class\": null,\n                \"images\": [],\n                \"child_products\": [],\n                \"attributes\": []\n            }\n        ],\n        \"is_product_coupon_enabled\": false,\n        \"coupon\": null,\n        \"published_date\": \"2023-07-15\"\n    }\n}"
+								},
+								{
+									"name": "Show Campaign Details",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{BASE_URL}}/zid/store-events?store-id=431553&event-id=6",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"zid",
+												"store-events"
+											],
+											"query": [
+												{
+													"key": "store-id",
+													"value": "431553"
+												},
+												{
+													"key": "event-id",
+													"value": "6",
+													"description": "1 => Starting the checkout\n2 => Add product to cart\n3 => Delete product from the cart\n4 => Exit a product page\n5 => Viewing a product page\n6 => Placed order\n"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Host",
+											"value": "localhost:8000"
+										},
+										{
+											"key": "Date",
+											"value": "Thu, 28 Sep 2023 04:13:46 GMT"
+										},
+										{
+											"key": "Date",
+											"value": "Thu, 28 Sep 2023 04:13:46 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										},
+										{
+											"key": "X-Powered-By",
+											"value": "PHP/8.1.11"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, private"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "X-RateLimit-Limit",
+											"value": "60"
+										},
+										{
+											"key": "X-RateLimit-Remaining",
+											"value": "57"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"is_success\": true,\n    \"status_code\": 200,\n    \"message\": \"\",\n    \"data\": [\n        {\n            \"id\": 1,\n            \"title\": \"National Day 1 | delete product page\",\n            \"status\": {\n                \"value\": 1,\n                \"value_string\": \"Active\"\n            },\n            \"trigger_product_type\": {\n                \"value\": 2,\n                \"value_string\": \"Specific Products\"\n            },\n            \"priority\": 1,\n            \"event\": {\n                \"id\": 6,\n                \"title\": {\n                    \"en\": \"Placed order\",\n                    \"ar\": \"إتمام الطلب\"\n                },\n                \"description\": {\n                    \"en\": \"When the customer completes an order, you can encourage them to make another purchase.\",\n                    \"ar\": \"عندما يتم العميل الطلب , سيمكنك تحفيزه لإعادة الشراء مرة أخرى .\"\n                }\n            },\n            \"type\": {\n                \"id\": 2,\n                \"title\": {\n                    \"en\": \"Cross-Selling\",\n                    \"ar\": \"البيع المتقطع\"\n                },\n                \"description\": {\n                    \"en\": \"Invites customers to buy related or complementary items.\",\n                    \"ar\": \"تريد من العملاء شراء المزيد من المنتجات وإضافتها للسلة\"\n                }\n            },\n            \"style\": {\n                \"id\": 2,\n                \"title\": {\n                    \"en\": \"Popup Card\",\n                    \"ar\": \"نافذة منبثقة\"\n                },\n                \"description\": {\n                    \"en\": \"A card will appear after customer add the selected product in the cart\",\n                    \"ar\": \"ستظهر النافذة بعد إضافة العميل للمنتج المحدد في سلة التسوق\"\n                }\n            },\n            \"card\": {\n                \"id\": 1,\n                \"title\": {\n                    \"en\": \"test\",\n                    \"ar\": \"تيست\"\n                },\n                \"description\": {\n                    \"en\": \"test\",\n                    \"ar\": \"تيست\"\n                }\n            },\n            \"trigger_products\": [\n                {\n                    \"id\": 36,\n                    \"uuid\": \"d1f4d6e4-9b63-4159-a9d5-865b56b289d8\",\n                    \"sku\": \"Z.431553.16958719247429023\",\n                    \"store_id\": 431553,\n                    \"name\": {\n                        \"en\": null,\n                        \"ar\": \"حافظ جواز سفر كورك\"\n                    },\n                    \"quantity\": 0,\n                    \"is_infinite\": false,\n                    \"price\": 45,\n                    \"sale_price\": null,\n                    \"currency\": \"SAR\",\n                    \"weight\": {\n                        \"value\": 0,\n                        \"unit\": \"kg\"\n                    },\n                    \"product_class\": null,\n                    \"images\": [\n                        {\n                            \"id\": 13,\n                            \"images\": {\n                                \"medium\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/097bb7d5-37b7-43fa-ab5f-ad60c57c3363-thumbnail-770x770-70.jpg\",\n                                \"small\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/097bb7d5-37b7-43fa-ab5f-ad60c57c3363-thumbnail-500x500-70.jpg\",\n                                \"full_size\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/097bb7d5-37b7-43fa-ab5f-ad60c57c3363-thumbnail-1000x1000-70.jpg\",\n                                \"thumbnail\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/097bb7d5-37b7-43fa-ab5f-ad60c57c3363-thumbnail-370x370-70.jpg\",\n                                \"large\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/097bb7d5-37b7-43fa-ab5f-ad60c57c3363-thumbnail-1000x1000-70.jpg\"\n                            }\n                        }\n                    ],\n                    \"child_products\": [],\n                    \"attributes\": []\n                },\n                {\n                    \"id\": 37,\n                    \"uuid\": \"973773ac-4561-4616-a85a-b62768d370ec\",\n                    \"sku\": \"Z.431553.16958721329477406\",\n                    \"store_id\": 431553,\n                    \"name\": {\n                        \"en\": \"+5 Manuka Beenz honey 250gm\",\n                        \"ar\": \"عسل بينز مانوكا +5 Manuka Beenz honey 250gm\"\n                    },\n                    \"quantity\": 0,\n                    \"is_infinite\": false,\n                    \"price\": 57,\n                    \"sale_price\": null,\n                    \"currency\": \"SAR\",\n                    \"weight\": {\n                        \"value\": null,\n                        \"unit\": \"kg\"\n                    },\n                    \"product_class\": null,\n                    \"images\": [\n                        {\n                            \"id\": 14,\n                            \"images\": {\n                                \"medium\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/18abb8da-2c82-4bf4-96e3-89a002a9a4f3-thumbnail-770x770-70.jpg\",\n                                \"small\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/18abb8da-2c82-4bf4-96e3-89a002a9a4f3-thumbnail-500x500-70.jpg\",\n                                \"full_size\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/18abb8da-2c82-4bf4-96e3-89a002a9a4f3-thumbnail-1000x1000-70.jpg\",\n                                \"thumbnail\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/18abb8da-2c82-4bf4-96e3-89a002a9a4f3-thumbnail-370x370-70.jpg\",\n                                \"large\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/18abb8da-2c82-4bf4-96e3-89a002a9a4f3-thumbnail-1000x1000-70.jpg\"\n                            }\n                        }\n                    ],\n                    \"child_products\": [\n                        {\n                            \"id\": 38,\n                            \"uuid\": \"4c431145-d96c-4479-9d89-0f19b6f8e76b\",\n                            \"sku\": \"Z.431553.169587221794128324\",\n                            \"store_id\": 431553,\n                            \"name\": {\n                                \"en\": \"+5 Manuka Beenz honey 250gm\",\n                                \"ar\": \"عسل بينز مانوكا +5 Manuka Beenz honey 250gm - Kg\"\n                            },\n                            \"quantity\": 0,\n                            \"is_infinite\": false,\n                            \"price\": 57,\n                            \"sale_price\": null,\n                            \"currency\": \"SAR\",\n                            \"weight\": {\n                                \"value\": null,\n                                \"unit\": \"kg\"\n                            },\n                            \"images\": []\n                        },\n                        {\n                            \"id\": 40,\n                            \"uuid\": \"bede153d-6c2a-454d-9eef-b3b5d33cade5\",\n                            \"sku\": \"Z.431553.169587221793397712\",\n                            \"store_id\": 431553,\n                            \"name\": {\n                                \"en\": \"+5 Manuka Beenz honey 250gm\",\n                                \"ar\": \"عسل بينز مانوكا +5 Manuka Beenz honey 250gm - 3 كيلو\"\n                            },\n                            \"quantity\": 0,\n                            \"is_infinite\": false,\n                            \"price\": 57,\n                            \"sale_price\": null,\n                            \"currency\": \"SAR\",\n                            \"weight\": {\n                                \"value\": null,\n                                \"unit\": \"kg\"\n                            },\n                            \"images\": []\n                        }\n                    ],\n                    \"attributes\": [\n                        {\n                            \"id\": 1,\n                            \"name\": {\n                                \"en\": null,\n                                \"ar\": \"الوزن\"\n                            },\n                            \"presets\": [\n                                {\n                                    \"child_id\": 38,\n                                    \"child_id_string\": \"4c431145-d96c-4479-9d89-0f19b6f8e76b\",\n                                    \"value\": {\n                                        \"en\": null,\n                                        \"ar\": \"Kg\"\n                                    }\n                                },\n                                {\n                                    \"child_id\": 39,\n                                    \"child_id_string\": \"18d77cdf-d9c5-41dc-b6dc-bdb9c91720c6\",\n                                    \"value\": {\n                                        \"en\": null,\n                                        \"ar\": \"100 جرام\"\n                                    }\n                                },\n                                {\n                                    \"child_id\": 40,\n                                    \"child_id_string\": \"bede153d-6c2a-454d-9eef-b3b5d33cade5\",\n                                    \"value\": {\n                                        \"en\": null,\n                                        \"ar\": \"3 كيلو\"\n                                    }\n                                }\n                            ]\n                        }\n                    ]\n                }\n            ],\n            \"action_products\": [\n                {\n                    \"id\": 4,\n                    \"uuid\": \"23555451-e570-47f5-af48-bed960fe972f\",\n                    \"sku\": \"Z.431553.16956655954150505\",\n                    \"store_id\": 431553,\n                    \"name\": {\n                        \"en\": \"test 1\",\n                        \"ar\": \"تيست 1\"\n                    },\n                    \"quantity\": 0,\n                    \"is_infinite\": false,\n                    \"price\": 200,\n                    \"sale_price\": 10,\n                    \"currency\": \"SAR\",\n                    \"weight\": {\n                        \"value\": null,\n                        \"unit\": \"kg\"\n                    },\n                    \"product_class\": null,\n                    \"images\": [\n                        {\n                            \"id\": 2,\n                            \"images\": {\n                                \"medium\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/87918af3-65e3-4ff5-800c-90f3b5053ace-thumbnail-770x770.png\",\n                                \"small\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/87918af3-65e3-4ff5-800c-90f3b5053ace-thumbnail-500x500.png\",\n                                \"full_size\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/87918af3-65e3-4ff5-800c-90f3b5053ace-thumbnail-1000x1000.png\",\n                                \"thumbnail\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/87918af3-65e3-4ff5-800c-90f3b5053ace-thumbnail-370x370.png\",\n                                \"large\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/87918af3-65e3-4ff5-800c-90f3b5053ace-thumbnail-1000x1000.png\"\n                            }\n                        }\n                    ],\n                    \"child_products\": [\n                        {\n                            \"id\": 5,\n                            \"uuid\": \"23b3365c-1b75-4941-8b6c-a521e096887d\",\n                            \"sku\": \"Z.431553.1695665823295528216\",\n                            \"store_id\": 431553,\n                            \"name\": {\n                                \"en\": \"test 1 - green - Small\",\n                                \"ar\": \"تيست 1 - اخضر - صغير\"\n                            },\n                            \"quantity\": 0,\n                            \"is_infinite\": false,\n                            \"price\": 200,\n                            \"sale_price\": 10,\n                            \"currency\": \"SAR\",\n                            \"weight\": {\n                                \"value\": null,\n                                \"unit\": \"kg\"\n                            },\n                            \"images\": []\n                        },\n                        {\n                            \"id\": 6,\n                            \"uuid\": \"7c7d1126-019b-4827-8267-0c83fb24d276\",\n                            \"sku\": \"Z.431553.1695665823291598615\",\n                            \"store_id\": 431553,\n                            \"name\": {\n                                \"en\": \"test 1 - yellow  - Small\",\n                                \"ar\": \"تيست 1 - اصفر - صغير\"\n                            },\n                            \"quantity\": 0,\n                            \"is_infinite\": false,\n                            \"price\": 200,\n                            \"sale_price\": 10,\n                            \"currency\": \"SAR\",\n                            \"weight\": {\n                                \"value\": null,\n                                \"unit\": \"kg\"\n                            },\n                            \"images\": []\n                        },\n                        {\n                            \"id\": 8,\n                            \"uuid\": \"839c51ce-5c38-42c3-812f-19244e143b53\",\n                            \"sku\": \"Z.431553.1695665823283414413\",\n                            \"store_id\": 431553,\n                            \"name\": {\n                                \"en\": \"test 1 - black - Small\",\n                                \"ar\": \"تيست 1 - اسود - صغير\"\n                            },\n                            \"quantity\": 0,\n                            \"is_infinite\": false,\n                            \"price\": 200,\n                            \"sale_price\": 10,\n                            \"currency\": \"SAR\",\n                            \"weight\": {\n                                \"value\": null,\n                                \"unit\": \"kg\"\n                            },\n                            \"images\": []\n                        }\n                    ],\n                    \"attributes\": [\n                        {\n                            \"id\": 5,\n                            \"name\": {\n                                \"en\": \"color\",\n                                \"ar\": \"اللون\"\n                            },\n                            \"presets\": [\n                                {\n                                    \"child_id\": 15,\n                                    \"child_id_string\": \"5d601215-dd51-4f97-b174-d0e391421404\",\n                                    \"value\": {\n                                        \"en\": \"green\",\n                                        \"ar\": \"اخضر\"\n                                    }\n                                },\n                                {\n                                    \"child_id\": 16,\n                                    \"child_id_string\": \"1a20873e-bc2c-494b-8a8e-b7248e249149\",\n                                    \"value\": {\n                                        \"en\": \"yellow \",\n                                        \"ar\": \"اصفر\"\n                                    }\n                                },\n                                {\n                                    \"child_id\": 17,\n                                    \"child_id_string\": \"7c7faa4b-b3b7-4f72-9fb7-9a8cd336011e\",\n                                    \"value\": {\n                                        \"en\": \"white\",\n                                        \"ar\": \"ابيض\"\n                                    }\n                                },\n                                {\n                                    \"child_id\": 18,\n                                    \"child_id_string\": \"02f46dc0-0136-44fc-8f43-d9acaa0fa862\",\n                                    \"value\": {\n                                        \"en\": \"black\",\n                                        \"ar\": \"اسود\"\n                                    }\n                                },\n                                {\n                                    \"child_id\": 19,\n                                    \"child_id_string\": \"de9ab214-8e85-4bd0-887e-f0409e008241\",\n                                    \"value\": {\n                                        \"en\": \"red\",\n                                        \"ar\": \"احمر\"\n                                    }\n                                }\n                            ]\n                        },\n                        {\n                            \"id\": 4,\n                            \"name\": {\n                                \"en\": \"size\",\n                                \"ar\": \"المقاس\"\n                            },\n                            \"presets\": [\n                                {\n                                    \"child_id\": 9,\n                                    \"child_id_string\": \"9b25dc77-a039-4440-b5e7-55b40be8f6d0\",\n                                    \"value\": {\n                                        \"en\": \"Small\",\n                                        \"ar\": \"صغير\"\n                                    }\n                                },\n                                {\n                                    \"child_id\": 14,\n                                    \"child_id_string\": \"cd3988f8-b121-4537-a74d-7e1e469bfeae\",\n                                    \"value\": {\n                                        \"en\": null,\n                                        \"ar\": \"اكس لارج\"\n                                    }\n                                },\n                                {\n                                    \"child_id\": 19,\n                                    \"child_id_string\": \"de9ab214-8e85-4bd0-887e-f0409e008241\",\n                                    \"value\": {\n                                        \"en\": \"X\",\n                                        \"ar\": \"اكس\"\n                                    }\n                                }\n                            ]\n                        }\n                    ]\n                },\n                {\n                    \"id\": 27,\n                    \"uuid\": \"059addf6-09d8-49c8-9f0b-14cd3c4e3ce4\",\n                    \"sku\": \"Z.431553.1695871776763197\",\n                    \"store_id\": 431553,\n                    \"name\": {\n                        \"en\": null,\n                        \"ar\": \"شاي يارا | تلقيمة\"\n                    },\n                    \"quantity\": 0,\n                    \"is_infinite\": false,\n                    \"price\": 26,\n                    \"sale_price\": null,\n                    \"currency\": \"SAR\",\n                    \"weight\": {\n                        \"value\": null,\n                        \"unit\": \"kg\"\n                    },\n                    \"product_class\": null,\n                    \"images\": [\n                        {\n                            \"id\": 8,\n                            \"images\": {\n                                \"medium\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/c356026d-1c04-43cc-898d-f48067e87072-thumbnail-770x770-70.jpg\",\n                                \"small\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/c356026d-1c04-43cc-898d-f48067e87072-thumbnail-500x500-70.jpg\",\n                                \"full_size\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/c356026d-1c04-43cc-898d-f48067e87072-thumbnail-1000x1000-70.jpg\",\n                                \"thumbnail\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/c356026d-1c04-43cc-898d-f48067e87072-thumbnail-370x370-70.jpg\",\n                                \"large\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/c356026d-1c04-43cc-898d-f48067e87072-thumbnail-1000x1000-70.jpg\"\n                            }\n                        }\n                    ],\n                    \"child_products\": [\n                        {\n                            \"id\": 28,\n                            \"uuid\": \"cc2d5c1a-11d6-469b-ae9e-5fa498a917f5\",\n                            \"sku\": \"Z.431553.169587181730866463\",\n                            \"store_id\": 431553,\n                            \"name\": {\n                                \"en\": null,\n                                \"ar\": \"شاي يارا | تلقيمة - علبة - Kg\"\n                            },\n                            \"quantity\": 0,\n                            \"is_infinite\": false,\n                            \"price\": 26,\n                            \"sale_price\": null,\n                            \"currency\": \"SAR\",\n                            \"weight\": {\n                                \"value\": null,\n                                \"unit\": \"kg\"\n                            },\n                            \"images\": []\n                        }\n                    ],\n                    \"attributes\": [\n                        {\n                            \"id\": 2,\n                            \"name\": {\n                                \"en\": null,\n                                \"ar\": \"الكمية\"\n                            },\n                            \"presets\": [\n                                {\n                                    \"child_id\": 28,\n                                    \"child_id_string\": \"cc2d5c1a-11d6-469b-ae9e-5fa498a917f5\",\n                                    \"value\": {\n                                        \"en\": null,\n                                        \"ar\": \"علبة\"\n                                    }\n                                },\n                                {\n                                    \"child_id\": 29,\n                                    \"child_id_string\": \"5bdf91e4-e3b0-4d25-8c41-0e835e04c573\",\n                                    \"value\": {\n                                        \"en\": null,\n                                        \"ar\": \"كرتون\"\n                                    }\n                                }\n                            ]\n                        },\n                        {\n                            \"id\": 1,\n                            \"name\": {\n                                \"en\": null,\n                                \"ar\": \"الوزن\"\n                            },\n                            \"presets\": [\n                                {\n                                    \"child_id\": 29,\n                                    \"child_id_string\": \"5bdf91e4-e3b0-4d25-8c41-0e835e04c573\",\n                                    \"value\": {\n                                        \"en\": null,\n                                        \"ar\": \"Kg\"\n                                    }\n                                }\n                            ]\n                        }\n                    ]\n                },\n                {\n                    \"id\": 30,\n                    \"uuid\": \"3403f5a4-5302-4c85-b208-10a282b4f5e8\",\n                    \"sku\": \"Z.431553.1695872318897372\",\n                    \"store_id\": 431553,\n                    \"name\": {\n                        \"en\": null,\n                        \"ar\": \"فلتر شاور بالفيتامينات - رائحة العود\"\n                    },\n                    \"quantity\": 0,\n                    \"is_infinite\": false,\n                    \"price\": 169,\n                    \"sale_price\": null,\n                    \"currency\": \"SAR\",\n                    \"weight\": {\n                        \"value\": 0,\n                        \"unit\": \"kg\"\n                    },\n                    \"product_class\": null,\n                    \"images\": [\n                        {\n                            \"id\": 9,\n                            \"images\": {\n                                \"medium\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/ff0d7042-9972-4a66-9e09-6f069e12ecaf-thumbnail-770x770.png\",\n                                \"small\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/ff0d7042-9972-4a66-9e09-6f069e12ecaf-thumbnail-500x500.png\",\n                                \"full_size\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/ff0d7042-9972-4a66-9e09-6f069e12ecaf-thumbnail-1000x1000.png\",\n                                \"thumbnail\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/ff0d7042-9972-4a66-9e09-6f069e12ecaf-thumbnail-370x370.png\",\n                                \"large\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/ff0d7042-9972-4a66-9e09-6f069e12ecaf-thumbnail-1000x1000.png\"\n                            }\n                        }\n                    ],\n                    \"child_products\": [],\n                    \"attributes\": []\n                },\n                {\n                    \"id\": 31,\n                    \"uuid\": \"23c8d2ba-2fcd-41f3-a59d-52215a10b02e\",\n                    \"sku\": \"Z.431553.16958704800250037\",\n                    \"store_id\": 431553,\n                    \"name\": {\n                        \"en\": \"New Salam Tobacco 1986 perfume\",\n                        \"ar\": \"عطر سلام توباكو 1986 الجديد\"\n                    },\n                    \"quantity\": 0,\n                    \"is_infinite\": false,\n                    \"price\": 666.33,\n                    \"sale_price\": null,\n                    \"currency\": \"SAR\",\n                    \"weight\": {\n                        \"value\": 0,\n                        \"unit\": \"kg\"\n                    },\n                    \"product_class\": null,\n                    \"images\": [\n                        {\n                            \"id\": 10,\n                            \"images\": {\n                                \"medium\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/eab7dc21-fb80-4e86-9943-24e0915b8e9a-thumbnail-770x770-70.jpg\",\n                                \"small\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/eab7dc21-fb80-4e86-9943-24e0915b8e9a-thumbnail-500x500-70.jpg\",\n                                \"full_size\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/eab7dc21-fb80-4e86-9943-24e0915b8e9a-thumbnail-1000x1000-70.jpg\",\n                                \"thumbnail\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/eab7dc21-fb80-4e86-9943-24e0915b8e9a-thumbnail-370x370-70.jpg\",\n                                \"large\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/eab7dc21-fb80-4e86-9943-24e0915b8e9a-thumbnail-1000x1000-70.jpg\"\n                            }\n                        }\n                    ],\n                    \"child_products\": [],\n                    \"attributes\": []\n                }\n            ],\n            \"is_alternative_product_enabled\": true,\n            \"alternative_products\": [\n                {\n                    \"id\": 32,\n                    \"uuid\": \"052b288f-2d2c-4456-b2b9-f8265c552d1a\",\n                    \"sku\": \"Z.431553.16958708551310303\",\n                    \"store_id\": 431553,\n                    \"name\": {\n                        \"en\": \"Musk perfume from Salam\",\n                        \"ar\": \"عطر المسك من سلام\"\n                    },\n                    \"quantity\": 0,\n                    \"is_infinite\": false,\n                    \"price\": 1425.78,\n                    \"sale_price\": null,\n                    \"currency\": \"SAR\",\n                    \"weight\": {\n                        \"value\": 0,\n                        \"unit\": \"kg\"\n                    },\n                    \"product_class\": null,\n                    \"images\": [\n                        {\n                            \"id\": 11,\n                            \"images\": {\n                                \"medium\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/dfc8e2f5-ef93-4f16-a074-126e1beb8bab-thumbnail-770x770-70.jpg\",\n                                \"small\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/dfc8e2f5-ef93-4f16-a074-126e1beb8bab-thumbnail-500x500-70.jpg\",\n                                \"full_size\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/dfc8e2f5-ef93-4f16-a074-126e1beb8bab-thumbnail-1000x1000-70.jpg\",\n                                \"thumbnail\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/dfc8e2f5-ef93-4f16-a074-126e1beb8bab-thumbnail-370x370-70.jpg\",\n                                \"large\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/dfc8e2f5-ef93-4f16-a074-126e1beb8bab-thumbnail-1000x1000-70.jpg\"\n                            }\n                        }\n                    ],\n                    \"child_products\": []\n                },\n                {\n                    \"id\": 33,\n                    \"uuid\": \"2d2515db-b5f0-4222-a20a-f313f39861fc\",\n                    \"sku\": \"Z.431553.16958715871695938\",\n                    \"store_id\": 431553,\n                    \"name\": {\n                        \"en\": null,\n                        \"ar\": \"شاي يارا | أكياس\"\n                    },\n                    \"quantity\": 0,\n                    \"is_infinite\": false,\n                    \"price\": 19,\n                    \"sale_price\": null,\n                    \"currency\": \"SAR\",\n                    \"weight\": {\n                        \"value\": null,\n                        \"unit\": \"kg\"\n                    },\n                    \"product_class\": null,\n                    \"images\": [\n                        {\n                            \"id\": 12,\n                            \"images\": {\n                                \"medium\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/55050b08-4b7a-4029-b83d-75f4e947fa66-thumbnail-770x770-70.jpg\",\n                                \"small\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/55050b08-4b7a-4029-b83d-75f4e947fa66-thumbnail-500x500-70.jpg\",\n                                \"full_size\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/55050b08-4b7a-4029-b83d-75f4e947fa66-thumbnail-1000x1000-70.jpg\",\n                                \"thumbnail\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/55050b08-4b7a-4029-b83d-75f4e947fa66-thumbnail-370x370-70.jpg\",\n                                \"large\": \"https://media.zid.store/thumbs/b18292e4-e3e4-4249-99f6-477e1ab814b7/55050b08-4b7a-4029-b83d-75f4e947fa66-thumbnail-1000x1000-70.jpg\"\n                            }\n                        }\n                    ],\n                    \"child_products\": [\n                        {\n                            \"id\": 34,\n                            \"uuid\": \"a00d0dd7-879b-487a-a158-114700b101ac\",\n                            \"sku\": \"Z.431553.16958717077166763\",\n                            \"store_id\": 431553,\n                            \"name\": {\n                                \"en\": null,\n                                \"ar\": \"شاي يارا | أكياس - علبة - Kg\"\n                            },\n                            \"quantity\": 0,\n                            \"is_infinite\": false,\n                            \"price\": 19,\n                            \"sale_price\": null,\n                            \"currency\": \"SAR\",\n                            \"weight\": {\n                                \"value\": null,\n                                \"unit\": \"kg\"\n                            },\n                            \"images\": []\n                        }\n                    ]\n                }\n            ],\n            \"is_product_coupon_enabled\": true,\n            \"coupon\": {\n                \"id\": 1,\n                \"name\": {\n                    \"ar\": \"تيست كوبون\",\n                    \"en\": \"test coupon name\"\n                },\n                \"code\": \"Z-Z-5426\",\n                \"discount_type\": {\n                    \"value\": 2,\n                    \"description\": \"Percentage\"\n                },\n                \"discount\": 100,\n                \"is_free_shipping\": true,\n                \"is_free_cod\": false,\n                \"fixed_expiration_date\": \"2023-10-01\"\n            },\n            \"published_date\": \"2023-10-01\",\n            \"campaign_settings\": {\n                \"is_limited_quantity\": 1,\n                \"limited_quantity_value\": 30\n            }\n        }\n    ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Find variant id",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "    {\r\n        \"product_id\" : \"4d00c2dc-6484-445a-9573-cb99392d40d6\",\r\n        \"lang\"       : \"ar\",\r\n        \"names\" : [\r\n             \"منفذ سي\", \"120\"\r\n        ]\r\n    }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/zid/store-front/variant",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"zid",
+										"store-front",
+										"variant"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Campaign Actions",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \r\n  \r\n    \"action_product_ids\"   : [\r\n        {\r\n            \"id\" : 12,\r\n            \"child_ids\" :[\r\n              \r\n            ]\r\n        }\r\n    ],\r\n    \"campaign_id\"          : 3,\r\n    \"event_id\"             : 5,\r\n    \"store_id\"             : \"bc2c465e-c1f5-43c7-b26b-d460df9a1a29\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/zid/store-events/campaign",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"zid",
+										"store-events",
+										"campaign"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Campaign Insights",
+					"item": [
+						{
+							"name": "Clicks",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"store_uuid\"  : \"c6e9b54f-60d1-4d10-9349-3edac4ac130d\",\r\n    \"campaign_id\" : 141,\r\n    \"click_type\"  : 1,   // 1=>add to cart, 2 => add them , 3=> replace, 4=>replace them, 5=>copy coupon\r\n    \"product_id\"  : 13250,\r\n    \"quantity\"    : 6\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/zid/store-front/campaign/clicks",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"zid",
+										"store-front",
+										"campaign",
+										"clicks"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "conversions",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"store_uuid\"  : \"bc2c465e-c1f5-43c7-b26b-d460df9a1a29\",\r\n    \"products\":[\r\n        {\r\n            \"uuid\" : \"b2098bd4-d11c-4c17-a8b9-e5460a5d9198\", // product\r\n            \"campaign_id\" : 3,  \r\n            \"quantity\" : 5,\r\n            \"gross_price\" : 86 \r\n        },\r\n        {\r\n            \"uuid\" : \"54165f66-c8b3-443b-803d-ba3b3e5f6349\",\r\n            \"campaign_id\" : 3,\r\n            \"quantity\" : 5,\r\n            \"gross_price\" : 86 \r\n        }\r\n        \r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/zid/store-front/campaign/conversions",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"zid",
+										"store-front",
+										"campaign",
+										"conversions"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	]
+}

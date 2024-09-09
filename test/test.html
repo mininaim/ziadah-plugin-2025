@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ziadah Plugin Test</title>
+
+    <!-- DNS prefetching -->
+    <!-- 
+    <link rel="preconnect" href="https://api.zid.sa">
+    <link rel="dns-prefetch" href="https://api.zid.sa">
+    <link rel="preconnect" href="https://cdn.zid.sa">
+    <link rel="dns-prefetch" href="https://cdn.zid.sa">
+    <link rel="preconnect" href="https://static.zid.sa">
+    <link rel="dns-prefetch" href="https://static.zid.sa">
+    -->
+
+</head>
+<body>
+    <h1>Ziadah Plugin Test Page</h1>
+    
+    <h2>Trigger Events</h2>
+    <button id="triggerProductView">Product View</button>
+    <button id="triggerAddToCart">Add to Cart</button>
+    <button id="triggerRemoveFromCart">Remove from Cart</button>
+    <button id="triggerProductPageLeave">Product Page Leave</button>
+    <button id="triggerStartCheckout">Start Checkout</button>
+    <button id="triggerPurchase">Purchase</button>
+
+    <h2>Navigation Simulation</h2>
+    <button id="simulateProductPage">Go to Product Page</button>
+    <button id="simulateCartPage">Go to Cart Page</button>
+    <button id="simulateCheckoutPage">Go to Checkout Page</button>
+    <button id="simulateOrderCompletePage">Go to Order Complete Page</button>
+
+    <ziadah-plugin></ziadah-plugin>
+
+    <script src="../dist/index.js"></script>
+    <script>
+
+        const product1 = '413d8d37-73fd-4b55-a1f9-814ffa92f9ef';  
+        const product2 = '052b288f-2d2c-4456-b2b9-f8265c552d1a';  
+
+
+        function dispatchEvent(eventName, detail = {}) {
+            const event = new CustomEvent(eventName, { detail });
+            document.dispatchEvent(event);
+        }
+
+
+        document.getElementById('triggerProductView').addEventListener('click', () => 
+            dispatchEvent('product-view', { id: product1 }));
+        document.getElementById('triggerAddToCart').addEventListener('click', () => 
+            dispatchEvent('add-to-cart', { id: product1, quantity: 1 }));
+        document.getElementById('triggerRemoveFromCart').addEventListener('click', () => 
+            dispatchEvent('remove-from-cart', { id: product1 }));
+        document.getElementById('triggerProductPageLeave').addEventListener('click', () => 
+            dispatchEvent('product-page-leave', { id: product1 }));
+        document.getElementById('triggerStartCheckout').addEventListener('click', () => 
+            dispatchEvent('start-checkout'));
+        document.getElementById('triggerPurchase').addEventListener('click', () => 
+            dispatchEvent('purchase', [{ product_id: product1, quantity: 1 }, { product_id: product2, quantity: 2 }]));
+
+
+        document.getElementById('simulateProductPage').addEventListener('click', () => {
+            history.pushState(null, '', `/products/${product1}`);
+            dispatchEvent('product-view', { id: product1 });
+        });
+        document.getElementById('simulateCartPage').addEventListener('click', () => {
+            history.pushState(null, '', '/cart/view');
+            dispatchEvent('start-checkout');
+        });
+        document.getElementById('simulateCheckoutPage').addEventListener('click', () => {
+            history.pushState(null, '', '/checkout');
+        });
+        document.getElementById('simulateOrderCompletePage').addEventListener('click', () => {
+            history.pushState(null, '', '/order-completed/123');
+            dispatchEvent('purchase', [{ product_id: product1, quantity: 1 }, { product_id: product2, quantity: 2 }]);
+        });
+    </script>
+</body>
+</html>
