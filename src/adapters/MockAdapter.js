@@ -20,8 +20,8 @@ export class MockAdapter extends AbstractEcommerceAdapter {
     this.cachedSettings = null;
     this.delay = 100;
 
-    console.log("Mockup data loaded:", JSON.stringify(this.campaigns, null, 2));
-    console.log("Mock cart:", JSON.stringify(mockCart, null, 2));
+    //console.log("Mockup data loaded:", JSON.stringify(this.campaigns, null, 2));
+    //console.log("Mock cart:", JSON.stringify(mockCart, null, 2));
   }
 
   async simulateDelay() {

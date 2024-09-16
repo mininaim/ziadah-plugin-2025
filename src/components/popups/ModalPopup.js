@@ -6,10 +6,10 @@ import { getState } from "../../store";
 
 export class ModalPopup extends AbstractPopup {
   async create(campaignData, settings) {
-    console.log(
-      "Creating modal popup with data:",
-      JSON.stringify(campaignData, null, 2)
-    );
+    // console.log(
+    //   "Creating modal popup with data:",
+    //   JSON.stringify(campaignData, null, 2)
+    // );
 
     const customStyles = parseCustomCSS(settings.customCSS || "");
 

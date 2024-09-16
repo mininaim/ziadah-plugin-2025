@@ -267,7 +267,7 @@ class ZiadahPlugin extends HTMLElement {
       );
     } catch (error) {
       console.error("Error showing popup:", error);
-      console.error("Campaign data:", JSON.stringify(campaignData, null, 2));
+      //console.error("Campaign data:", JSON.stringify(campaignData, null, 2));
       console.error("Stack trace:", error.stack);
     }
   }

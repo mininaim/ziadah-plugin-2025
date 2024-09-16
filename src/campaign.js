@@ -55,7 +55,7 @@ export async function campaign(
           highestPriorityCampaign.action_products.map((p) => p.uuid)
         );
 
-        console.log("Campaign data:", result);
+        // console.log("Campaign data:", result);
 
         if (!result) {
           console.error("Failed to get campaign data");
@@ -168,10 +168,10 @@ function filterCampaignsByTriggerProductId(
 }
 async function showCampaignPopup(campaignData) {
   console.log("Showing campaign popup with data:", campaignData);
-  console.log(
-    "showCampaignPopup called with data:",
-    JSON.stringify(campaignData, null, 2)
-  );
+  // console.log(
+  //   "showCampaignPopup called with data:",
+  //   JSON.stringify(campaignData, null, 2)
+  // );
 
   if (!campaignData || !campaignData.id) {
     console.error("Invalid campaign data");
