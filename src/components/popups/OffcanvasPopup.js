@@ -10,26 +10,29 @@ export class OffcanvasPopup extends AbstractPopup {
   }
 
   async create(campaignData, settings) {
-    const customStyles = parseCustomCSS(settings.customCSS);
+    const customStyles = settings?.customCSS
+      ? parseCustomCSS(settings.customCSS)
+      : {};
 
-    const offcanvasElement = document.createElement("div");
-    offcanvasElement.classList.add(
+    const modalElement = document.createElement("div");
+    modalElement.classList.add(
       "ziadah-popup",
+      "ziadah-modal",
       "ziadah-offcanvas",
       `ziadah-offcanvas-${this.position}`
     );
 
     const styles = document.createElement("style");
     styles.textContent = `
-      ${this.getDefaultStyles()}
-      ${sanitizeCSS(customStyles)}
-    `;
+    ${this.getDefaultStyles()}
+    ${sanitizeCSS(customStyles)}
+  `;
 
-    offcanvasElement.innerHTML = this.generateOffcanvasContent(campaignData);
+    modalElement.innerHTML = this.generateModalContent(campaignData);
 
-    offcanvasElement.prepend(styles);
-    this.popupElement = offcanvasElement;
-    this.shadowRoot.appendChild(offcanvasElement);
+    modalElement.prepend(styles);
+    this.popupElement = modalElement;
+    this.shadowRoot.appendChild(modalElement);
 
     this.setupEventListeners();
   }

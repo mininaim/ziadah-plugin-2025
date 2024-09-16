@@ -130,15 +130,15 @@ export class ZidAdapter extends AbstractEcommerceAdapter {
         body: JSON.stringify(requestBody),
       });
 
+      const result = await response.json();
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error(
-          `Server responded with status ${response.status}: ${errorText}`
+        throw new Error(
+          `Server error ${response.status}: ${JSON.stringify(result)}`
         );
-        throw new Error(`Server error ${response.status}: ${errorText}`);
       }
 
-      return await response.json();
+      console.log("Campaign data:", result);
+      return result;
     } catch (error) {
       console.error("Error getting campaign data:", error);
       throw error;

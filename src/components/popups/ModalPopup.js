@@ -29,7 +29,6 @@ export class ModalPopup extends AbstractPopup {
 
     this.setupEventListeners();
   }
-
   async showProducts(
     actionProducts,
     triggerProducts,
@@ -43,7 +42,6 @@ export class ModalPopup extends AbstractPopup {
   ) {
     console.log("Showing products in modal popup");
 
-    // Construct campaignData in the format expected by generateModalContent
     const campaignData = {
       title: {
         [this.adapter.getLanguage()]: card?.title || "No Title",
@@ -55,7 +53,6 @@ export class ModalPopup extends AbstractPopup {
       coupon: options?.coupon,
     };
 
-    // Update the content and show the modal
     this.updateContent(campaignData);
     this.show();
   }

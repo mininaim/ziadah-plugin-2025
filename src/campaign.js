@@ -134,6 +134,7 @@ function filterCampaignsByTriggerProductId(
 async function showCampaignPopup(campaignData) {
   console.log("showCampaignPopup called with data:", campaignData);
 
+  // Ensure campaignData is valid
   if (!campaignData || !campaignData.is_success) {
     console.error("Invalid campaign data");
     notifyUser(t("campaign_error"), true);
@@ -143,31 +144,32 @@ async function showCampaignPopup(campaignData) {
   const state = getState();
   console.log("Current state:", state);
 
-  const PopupComponent = state.popupFactory.createPopup(state.popupType);
-  console.log("Created PopupComponent:", PopupComponent);
+  const PopupComponent = await state.popupFactory.createPopup(
+    state.popupType,
+    campaignData,
+    state.settings
+  );
 
-  if (
-    campaignData.action_products?.length === 0 &&
-    campaignData.is_product_coupon_enabled
-  ) {
-    await PopupComponent.showCoupon(campaignData.coupon);
-  } else {
+  // Ensure PopupComponent exists and has the showProducts method
+  if (PopupComponent && typeof PopupComponent.showProducts === "function") {
     await PopupComponent.showProducts(
-      campaignData.action_products || [],
-      campaignData.trigger_products || [],
+      campaignData.data.action_products || [],
+      campaignData.data.trigger_products || [],
       {
-        has_coupon: campaignData.is_product_coupon_enabled,
-        coupon: campaignData.coupon,
+        has_coupon: campaignData.data.is_product_coupon_enabled,
+        coupon: campaignData.data.coupon,
       },
-      campaignData.type?.id,
-      campaignData.card,
-      campaignData.alternative_products,
-      campaignData.is_alternative_product_enabled,
+      campaignData.data.type?.id,
+      campaignData.data.card,
+      campaignData.data.alternative_products,
+      campaignData.data.is_alternative_product_enabled,
       state.lastEventName === "add-remove-cart"
         ? state.lastEventData?.id
         : null,
-      campaignData.campaign_settings
+      campaignData.data.campaign_settings
     );
+  } else {
+    console.error("PopupComponent or showProducts method is not available");
   }
 }
 

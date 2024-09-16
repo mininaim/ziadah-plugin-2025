@@ -49,6 +49,36 @@
                 }
             }
         };
+
+        // Mock backend API response
+        window.originalFetch = window.fetch;
+        window.fetch = (url, options) => {
+            if (url.includes("/store-events/campaign")) {
+                console.log("Mocking fetch for /store-events/campaign");
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve({
+                        is_success: true,
+                        status_code: 200,
+                        message: '',
+                        data: [
+                            // Mocked campaign data (you can customize this)
+                            {
+                                id: 617,
+                                title: 'Mock Campaign',
+                                trigger_product_type: { value_string: 'all products' },
+                                action_products: [{ uuid: 'product1', name: { en: 'Mock Product 1' }, quantity: 10 }],
+                                coupon: { code: 'MOCKCOUPON' },
+                                is_product_coupon_enabled: true,
+                            },
+                        ]
+                    })
+                });
+            } else {
+                return window.originalFetch(url, options); // Fall back to original fetch for other requests
+            }
+        };
+        
     </script>
 
     <script src="../dist/index.js"></script>
