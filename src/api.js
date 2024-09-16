@@ -1,11 +1,17 @@
 import { getState } from "./store";
 import { notifyUser, t } from "./utils";
 
+function getLanguageAndStoreId(adapter) {
+  const state = getState();
+  const storeId = state.storeId || adapter.getStoreId();
+  const language = state.language;
+  return { storeId, language };
+}
+
 export async function fetchCampaigns(eventID, adapter) {
   try {
-    const state = getState();
-    const storeId = state.storeId || adapter.getStoreId();
-    return await adapter.fetchCampaigns(eventID, storeId);
+    const { storeId, language } = getLanguageAndStoreId(adapter);
+    return await adapter.fetchCampaigns(eventID, storeId, language);
   } catch (error) {
     console.error("Error fetching campaigns:", error);
     notifyUser(t("error_fetching_campaigns"), true);
@@ -20,13 +26,13 @@ export async function getCampaignData(
   adapter
 ) {
   try {
-    const state = getState();
-    const storeId = state.storeId || adapter.getStoreId();
+    const { storeId, language } = getLanguageAndStoreId(adapter);
     return await adapter.getCampaignData(
       campaign_id,
       event_id,
       action_products,
-      storeId
+      storeId,
+      language
     );
   } catch (error) {
     console.error("Error getting campaign data:", error);
@@ -75,14 +81,14 @@ export async function sendClickData(
   adapter
 ) {
   try {
-    const state = getState();
-    const storeUUID = state.storeId || adapter.getStoreId();
+    const { storeId: storeUUID, language } = getLanguageAndStoreId(adapter);
     return await adapter.sendClickData(
       storeUUID,
       campaignID,
       clickType,
       productId,
-      quantity
+      quantity,
+      language
     );
   } catch (error) {
     console.error("Error sending click data:", error);
@@ -92,23 +98,22 @@ export async function sendClickData(
 
 export async function sendConversionData(products, adapter) {
   try {
-    const state = getState();
-    const storeUUID = state.storeId || adapter.getStoreId();
-    return await adapter.sendConversionData(storeUUID, products);
+    const { storeId: storeUUID, language } = getLanguageAndStoreId(adapter);
+    return await adapter.sendConversionData(storeUUID, products, language);
   } catch (error) {
     console.error("Error sending conversion data:", error);
     return { success: false };
   }
 }
 
-export async function fetchProductVariants(
-  uuid,
-  selectedAttributes,
-  lang,
-  adapter
-) {
+export async function fetchProductVariants(uuid, selectedAttributes, adapter) {
   try {
-    return await adapter.fetchProductVariants(uuid, selectedAttributes, lang);
+    const { language } = getLanguageAndStoreId(adapter);
+    return await adapter.fetchProductVariants(
+      uuid,
+      selectedAttributes,
+      language
+    );
   } catch (error) {
     console.error("Error fetching product variants:", error);
     notifyUser(t("error_fetching_variants"), true);
@@ -118,7 +123,8 @@ export async function fetchProductVariants(
 
 export async function fetchSettings(adapter) {
   try {
-    return await adapter.fetchSettings();
+    const { language } = getLanguageAndStoreId(adapter);
+    return await adapter.fetchSettings(language);
   } catch (error) {
     console.error("Error fetching settings:", error);
     notifyUser(t("error_fetching_settings"), true);

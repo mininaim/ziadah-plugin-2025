@@ -72,9 +72,9 @@ export class MockAdapter extends AbstractEcommerceAdapter {
     return { cart: this.cart };
   }
 
-  async fetchCampaigns(eventId, storeId) {
+  async fetchCampaigns(eventId, storeId, language) {
     console.log(
-      `MockAdapter.fetchCampaigns called with event ID: ${eventId}, store ID: ${storeId}`
+      `MockAdapter.fetchCampaigns called with event ID: ${eventId}, store ID: ${storeId}, language: ${language}`
     );
     console.log("Available campaigns:", this.campaigns.data.length);
 
@@ -86,14 +86,33 @@ export class MockAdapter extends AbstractEcommerceAdapter {
 
     console.log("Filtered campaigns:", filteredCampaigns);
 
+    // Simulate language-specific content
+    const localizedCampaigns = filteredCampaigns.map((campaign) => {
+      console.log(`Campaign title for ${language}:`, campaign.title[language]);
+      return {
+        ...campaign,
+        title: campaign.title[language] || campaign.title.en,
+        description: campaign.description
+          ? campaign.description[language] || campaign.description.en
+          : undefined,
+      };
+    });
+
     return {
       ...this.campaigns,
-      data: filteredCampaigns,
+      data: localizedCampaigns,
     };
   }
-  async getCampaignData(campaignId, eventId, actionProducts, storeId) {
+
+  async getCampaignData(
+    campaignId,
+    eventId,
+    actionProducts,
+    storeId,
+    language
+  ) {
     console.log(
-      `MockAdapter.getCampaignData called with campaign ID: ${campaignId}, event ID: ${eventId}, store ID: ${storeId}`
+      `MockAdapter.getCampaignData called with campaign ID: ${campaignId}, event ID: ${eventId}, store ID: ${storeId}, language: ${language}`
     );
 
     await this.simulateDelay();
@@ -106,11 +125,24 @@ export class MockAdapter extends AbstractEcommerceAdapter {
     if (campaign) {
       const result = {
         ...campaign,
-        action_products: campaign.action_products.filter((product) =>
-          actionProducts.includes(product.uuid)
-        ),
+        title: campaign.title[language] || campaign.title.en,
+        description: campaign.description
+          ? campaign.description[language] || campaign.description.en
+          : undefined,
+        action_products: campaign.action_products
+          .filter((product) => actionProducts.includes(product.uuid))
+          .map((product) => {
+            console.log(
+              `Product name for ${language}:`,
+              product.name[language]
+            );
+            return {
+              ...product,
+              name: product.name[language] || product.name.en,
+            };
+          }),
       };
-      console.log("Returning campaign data:", result);
+      console.log("Returning localized campaign data:", result);
       return result;
     }
 
@@ -118,31 +150,49 @@ export class MockAdapter extends AbstractEcommerceAdapter {
     return null;
   }
 
-  async sendClickData(storeUUID, campaignID, clickType, productId, quantity) {
+  async sendClickData(
+    storeUUID,
+    campaignID,
+    clickType,
+    productId,
+    quantity,
+    language
+  ) {
     console.log("Mock: Click data sent", {
       storeUUID,
       campaignID,
       clickType,
       productId,
       quantity,
+      language,
     });
     return { success: true };
   }
 
-  async sendConversionData(storeUUID, products) {
-    console.log("Mock: Conversion data sent", { storeUUID, products });
+  async sendConversionData(storeUUID, products, language) {
+    console.log("Mock: Conversion data sent", {
+      storeUUID,
+      products,
+      language,
+    });
     return { success: true };
   }
 
-  async fetchSettings() {
+  async fetchSettings(language) {
     if (this.settingsInitialized) {
       console.log("Returning cached settings");
       return this.cachedSettings;
     }
 
-    console.log("MockAdapter.fetchSettings called");
+    console.log(`MockAdapter.fetchSettings called with language: ${language}`);
     this.settingsInitialized = true;
-    this.cachedSettings = mockSettings;
+    this.cachedSettings = {
+      ...mockSettings,
+      language: {
+        ...mockSettings.language,
+        current: language,
+      },
+    };
     return this.cachedSettings;
   }
 
@@ -150,9 +200,13 @@ export class MockAdapter extends AbstractEcommerceAdapter {
     return this.storeId;
   }
 
-  async fetchProductVariants(uuid, selectedAttributes, lang) {
+  async fetchProductVariants(uuid, selectedAttributes, language) {
     await this.simulateDelay();
-    return mockProductVariants[uuid] || [];
+    const variants = mockProductVariants[uuid] || [];
+    return variants.map((variant) => ({
+      ...variant,
+      name: variant.name[language] || variant.name.en,
+    }));
   }
 
   async handleOrderPage() {
@@ -167,7 +221,11 @@ export class MockAdapter extends AbstractEcommerceAdapter {
       );
 
       if (modalAddedProducts.length > 0) {
-        await this.sendConversionData(this.storeId, modalAddedProducts);
+        await this.sendConversionData(
+          this.storeId,
+          modalAddedProducts,
+          this.language
+        );
         processedOrders.push(orderId);
         localStorage.setItem(
           "processedOrders",

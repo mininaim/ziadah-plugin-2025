@@ -166,8 +166,8 @@ function filterCampaignsByTriggerProductId(
   // console.log("Highest priority campaign:", highestPriorityCampaign); // This is the first log
   return highestPriorityCampaign;
 }
-
 async function showCampaignPopup(campaignData) {
+  console.log("Showing campaign popup with data:", campaignData);
   console.log(
     "showCampaignPopup called with data:",
     JSON.stringify(campaignData, null, 2)
@@ -183,8 +183,9 @@ async function showCampaignPopup(campaignData) {
   console.log("Current state:", state);
 
   try {
+    const popupType = campaignData.style?.title?.en?.toLowerCase() || "modal";
     const PopupComponent = await state.popupFactory.createPopup(
-      campaignData.style?.title?.en?.toLowerCase() || "modal",
+      popupType,
       campaignData,
       state.settings
     );

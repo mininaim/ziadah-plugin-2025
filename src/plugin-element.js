@@ -45,18 +45,21 @@ class ZiadahPlugin extends HTMLElement {
 
   async initializeAdapter() {
     console.log("Initializing adapter");
-    const adapter = this.adapter; // Access once and store locally
+    const adapter = this.adapter;
     try {
-      if (typeof adapter.getLanguage === "function") {
-        const language = adapter.getLanguage();
-        console.log(`Setting language to: ${language}`);
-        setState({ language });
-      } else {
-        console.warn(
-          "getLanguage method not found on adapter, defaulting to 'en'"
-        );
-        setState({ language: "en" });
-      }
+      // if (typeof adapter.getLanguage === "function") {
+      //   const language = adapter.getLanguage();
+      //   console.log(`Setting language to: ${language}`);
+      //   setState({ language });
+      // } else {
+      //   console.warn(
+      //     "getLanguage method not found on adapter, defaulting to 'en'"
+      //   );
+      //   setState({ language: "en" });
+      // }
+
+      const state = getState();
+      console.log(`Using language: ${state.language}`);
 
       if (!adapter.settingsInitialized) {
         console.log("Fetching adapter settings");
@@ -93,6 +96,9 @@ class ZiadahPlugin extends HTMLElement {
 
     this.isInitialized = true;
     setState({ pluginActive: true });
+
+    const htmlLang = document.documentElement.lang || "en";
+    setState({ language: htmlLang });
 
     try {
       await this.initializeAdapter();

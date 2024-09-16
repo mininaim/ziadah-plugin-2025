@@ -43,9 +43,9 @@ export function t(key, params = {}) {
   const translations = languages[lang];
 
   let translation = translations[key] || key;
-  if (key === "campaign_error" && !translations[key]) {
-    translation = "An error occurred while processing the campaign.";
-  }
+  console.log(
+    `Translating key "${key}" to "${translation}" in language "${lang}"`
+  );
 
   Object.entries(params).forEach(([param, value]) => {
     translation = translation.replace(

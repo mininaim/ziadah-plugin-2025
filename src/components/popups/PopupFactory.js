@@ -17,9 +17,8 @@ export class PopupFactory {
     // Validate campaignData
     if (
       !campaignData ||
-      !campaignData.is_success ||
-      !Array.isArray(campaignData.data) ||
-      campaignData.data.length === 0
+      typeof campaignData !== "object" ||
+      Object.keys(campaignData).length === 0
     ) {
       console.error("Invalid or empty campaign data passed to createPopup");
       return null;
@@ -43,6 +42,7 @@ export class PopupFactory {
       case "offcanvas":
         PopupClass = OffcanvasPopup;
         break;
+      case "popup card":
       case "modal":
       default:
         PopupClass = ModalPopup;

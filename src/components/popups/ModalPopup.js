@@ -1,9 +1,15 @@
 import { AbstractPopup } from "./AbstractPopup";
 import { parseCustomCSS } from "../../utils/cssParser";
 import { sanitizeCSS } from "../../utils/cssSanitizer";
-import { getStoreFontFamily, loadRubikFont, t } from "../../utils";
+import { getStoreFontFamily, loadRubikFont } from "../../utils";
+import { t } from "../../utils";
 
 export class ModalPopup extends AbstractPopup {
+  constructor() {
+    super();
+    this.t = t.bind(this);
+  }
+
   async create(campaignData, settings) {
     console.log(
       "Creating modal popup with data:",
@@ -241,9 +247,9 @@ export class ModalPopup extends AbstractPopup {
     `;
   }
 
-  t(key) {
-    return key;
-  }
+  // t(key) {
+  //   return key;
+  // }
 
   setupEventListeners() {
     this.popupElement.addEventListener("click", (e) => {
