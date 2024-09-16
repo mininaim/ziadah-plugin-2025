@@ -2,6 +2,7 @@ import { AbstractPopup } from "./AbstractPopup";
 import { parseCustomCSS } from "../../utils/cssParser";
 import { sanitizeCSS } from "../../utils/cssSanitizer";
 import { getStoreFontFamily, loadRubikFont, t } from "../../utils";
+import { getState } from "../../store";
 
 export class ModalPopup extends AbstractPopup {
   async create(campaignData, settings) {
@@ -231,8 +232,8 @@ export class ModalPopup extends AbstractPopup {
   }
 
   generateModalContent(campaignData) {
-    const state = getState();
-    const language = state.language;
+    this.state = getState(); // Update the state before generating content
+    const language = this.state.language;
     console.log("Current language from state:", language);
 
     let title =

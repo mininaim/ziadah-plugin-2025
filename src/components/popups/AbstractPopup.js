@@ -3,6 +3,7 @@ export class AbstractPopup {
     this.shadowRoot = shadowRoot;
     this.adapter = adapter;
     this.popupElement = null;
+    this.state = getState();
 
     if (new.target === AbstractPopup) {
       throw new TypeError("Cannot construct AbstractPopup instances directly");
