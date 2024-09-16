@@ -178,12 +178,15 @@ class ZiadahPlugin extends HTMLElement {
   }
   async showPopup(campaignData) {
     try {
-      console.log("Showing popup for campaign:", campaignData);
+      console.log(
+        "Showing popup for campaign:",
+        JSON.stringify(campaignData, null, 2)
+      );
 
       const popupType =
         campaignData?.style?.title?.en?.toLowerCase() || "modal";
 
-      const adapter = this.adapter; // Access once
+      const adapter = this.adapter;
       const settings = await adapter.fetchSettings();
       console.log("Fetched settings:", settings);
 
@@ -202,7 +205,17 @@ class ZiadahPlugin extends HTMLElement {
         throw new Error(`Failed to create popup of type: ${popupType}`);
       }
 
-      popupInstance.show();
+      await popupInstance.showProducts(
+        campaignData.action_products,
+        campaignData.trigger_products,
+        { coupon: campaignData.coupon },
+        campaignData.type?.id,
+        campaignData.card,
+        campaignData.alternative_products,
+        campaignData.is_alternative_product_enabled,
+        null,
+        campaignData.campaign_settings
+      );
     } catch (error) {
       console.error("Error showing popup:", error);
       console.error("Campaign data:", JSON.stringify(campaignData, null, 2));

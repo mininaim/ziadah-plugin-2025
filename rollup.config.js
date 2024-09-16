@@ -3,28 +3,10 @@ import commonjs from "@rollup/plugin-commonjs";
 import babel from "@rollup/plugin-babel";
 import replace from "@rollup/plugin-replace";
 import { terser } from "rollup-plugin-terser";
+import json from "@rollup/plugin-json";
 
 import dotenv from "dotenv";
 dotenv.config();
-
-const excludeMockPlugin = {
-  name: "exclude-mock",
-  resolveId(source) {
-    if (
-      source.includes("MockAdapter") &&
-      process.env.NODE_ENV === "production"
-    ) {
-      return { id: "excluded-mock-adapter", external: true };
-    }
-    return null;
-  },
-  load(id) {
-    if (id === "excluded-mock-adapter") {
-      return 'export class MockAdapter { constructor() { throw new Error("MockAdapter should not be used in production"); } }';
-    }
-    return null;
-  },
-};
 
 const createConfig = (outputFile, minimize) => ({
   input: "src/index.js",
@@ -35,14 +17,10 @@ const createConfig = (outputFile, minimize) => ({
     name: "ZiadahPlugin",
     inlineDynamicImports: true,
   },
-  // treeshake: {
-  //   moduleSideEffects: false,
-  //   propertyReadSideEffects: false,
-  //   tryCatchDeoptimization: false,
-  // },
   plugins: [
+    json(),
     resolve({
-      extensions: [".js"],
+      extensions: [".js", ".json"],
     }),
     commonjs(),
     replace({
@@ -59,7 +37,6 @@ const createConfig = (outputFile, minimize) => ({
       exclude: "node_modules/**",
       presets: ["@babel/preset-env"],
     }),
-    excludeMockPlugin,
     minimize && terser(),
   ],
   onwarn(warning, warn) {

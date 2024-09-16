@@ -18,6 +18,8 @@ export async function campaign(
 
   try {
     console.log("Event data:", JSON.stringify(eventData, null, 2));
+    console.log("Event ID:", eventID);
+    console.log("Event name:", eventName);
 
     setState({
       lastEventID: eventID,
@@ -47,17 +49,16 @@ export async function campaign(
           console.log("No matching campaign found");
           return;
         }
-
         const result = await adapter.getCampaignData(
           highestPriorityCampaign.id,
           eventID,
-          highestPriorityCampaign.action_products
+          highestPriorityCampaign.action_products.map((p) => p.uuid)
         );
 
         console.log("Campaign data:", result);
 
-        if (!result.is_success) {
-          console.error("Failed to get campaign data:", result.message);
+        if (!result) {
+          console.error("Failed to get campaign data");
           notifyUser(t("campaign_error"), true);
           return;
         }
@@ -106,36 +107,73 @@ function filterCampaignsByTriggerProductId(
   targetProductId,
   eventName
 ) {
+  console.log("Filtering campaigns:", campaigns);
+  console.log("Target product ID:", targetProductId);
+  console.log("Event name:", eventName);
+
   if (!Array.isArray(campaigns) || campaigns.length === 0) {
     console.log("No campaigns available");
     return null;
   }
 
   const activeCampaigns = campaigns.filter((campaign) => {
-    if (campaign.status?.value !== 1) return false;
-    if (
-      campaign.trigger_product_type?.value_string?.toLowerCase() ===
-      "all products"
-    )
+    // Check if the campaign is active
+    if (campaign.status?.value !== 1) {
+      console.log(`Campaign ${campaign.id} is not active`);
+      return false;
+    }
+
+    const triggerType =
+      campaign.trigger_product_type?.value_string?.toLowerCase();
+    console.log(`Campaign ${campaign.id} trigger type:`, triggerType);
+
+    // Check if the campaign applies to all products
+    if (triggerType === "all products") {
+      console.log(`Campaign ${campaign.id} applies to all products`);
       return true;
-    if (!targetProductId) return false;
-    return campaign.trigger_products?.some(
+    }
+
+    // If it's not "all products", we need a target product ID
+    if (!targetProductId) {
+      console.log("No target product ID provided");
+      return false;
+    }
+
+    // Check if the campaign's trigger products include the target product
+    const matchesTriggerProduct = campaign.trigger_products?.some(
       (product) => product.uuid === targetProductId
     );
+    console.log(
+      `Campaign ${campaign.id} matches trigger product:`,
+      matchesTriggerProduct
+    );
+
+    return matchesTriggerProduct;
   });
 
-  if (activeCampaigns.length === 0) return null;
+  console.log("Active campaigns after filtering:", activeCampaigns);
 
-  return activeCampaigns.reduce((prev, current) =>
+  if (activeCampaigns.length === 0) {
+    console.log("No active campaigns found");
+    return null;
+  }
+
+  // Find the campaign with the highest priority
+  const highestPriorityCampaign = activeCampaigns.reduce((prev, current) =>
     (current.priority || 0) > (prev.priority || 0) ? current : prev
   );
+
+  // console.log("Highest priority campaign:", highestPriorityCampaign); // This is the first log
+  return highestPriorityCampaign;
 }
 
 async function showCampaignPopup(campaignData) {
-  console.log("showCampaignPopup called with data:", campaignData);
+  console.log(
+    "showCampaignPopup called with data:",
+    JSON.stringify(campaignData, null, 2)
+  );
 
-  // Ensure campaignData is valid
-  if (!campaignData || !campaignData.is_success) {
+  if (!campaignData || !campaignData.id) {
     console.error("Invalid campaign data");
     notifyUser(t("campaign_error"), true);
     return;
@@ -144,32 +182,36 @@ async function showCampaignPopup(campaignData) {
   const state = getState();
   console.log("Current state:", state);
 
-  const PopupComponent = await state.popupFactory.createPopup(
-    state.popupType,
-    campaignData,
-    state.settings
-  );
+  try {
+    const PopupComponent = await state.popupFactory.createPopup(
+      campaignData.style?.title?.en?.toLowerCase() || "modal",
+      campaignData,
+      state.settings
+    );
 
-  // Ensure PopupComponent exists and has the showProducts method
-  if (PopupComponent && typeof PopupComponent.showProducts === "function") {
+    if (!PopupComponent) {
+      throw new Error("Failed to create popup component");
+    }
+
     await PopupComponent.showProducts(
-      campaignData.data.action_products || [],
-      campaignData.data.trigger_products || [],
+      campaignData.action_products || [],
+      campaignData.trigger_products || [],
       {
-        has_coupon: campaignData.data.is_product_coupon_enabled,
-        coupon: campaignData.data.coupon,
+        has_coupon: campaignData.is_product_coupon_enabled,
+        coupon: campaignData.coupon,
       },
-      campaignData.data.type?.id,
-      campaignData.data.card,
-      campaignData.data.alternative_products,
-      campaignData.data.is_alternative_product_enabled,
+      campaignData.type?.id,
+      campaignData.card,
+      campaignData.alternative_products,
+      campaignData.is_alternative_product_enabled,
       state.lastEventName === "add-remove-cart"
         ? state.lastEventData?.id
         : null,
-      campaignData.data.campaign_settings
+      campaignData.campaign_settings
     );
-  } else {
-    console.error("PopupComponent or showProducts method is not available");
+  } catch (error) {
+    console.error("Error showing popup:", error);
+    notifyUser(t("campaign_error"), true);
   }
 }
 

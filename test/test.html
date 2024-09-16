@@ -4,17 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ziadah Plugin Test</title>
-
-    <!-- DNS prefetching -->
-    <!-- 
-    <link rel="preconnect" href="https://api.zid.sa">
-    <link rel="dns-prefetch" href="https://api.zid.sa">
-    <link rel="preconnect" href="https://cdn.zid.sa">
-    <link rel="dns-prefetch" href="https://cdn.zid.sa">
-    <link rel="preconnect" href="https://static.zid.sa">
-    <link rel="dns-prefetch" href="https://static.zid.sa">
-    -->
-
 </head>
 <body>
     <h1>Ziadah Plugin Test Page</h1>
@@ -33,16 +22,25 @@
     <button id="simulateCheckoutPage">Go to Checkout Page</button>
     <button id="simulateOrderCompletePage">Go to Order Complete Page</button>
 
-     <!-- Mock Zid SDK and store_uuid -->
+    <!-- Mock Zid SDK and store_uuid -->
     <script>
-        window.store_uuid = 'c6e9b54f-60d1-4d10-9349-3edac4ac130d'; // Replace with your actual store ID
+        window.USE_MOCK_DATA = true;
+        window.store_uuid = 'c6e9b54f-60d1-4d10-9349-3edac4ac130d';
         
         // Mock Zid SDK
         window.zid = {
             store: {
                 cart: {
                     fetch: () => Promise.resolve({
-                        data: { cart: { status: 'completed', items: [] } }
+                        data: { 
+                            cart: { 
+                                status: 'completed', 
+                                items: [
+                                    { product_id: '413d8d37-73fd-4b55-a1f9-814ffa92f9ef', quantity: 1 },
+                                    { product_id: '052b288f-2d2c-4456-b2b9-f8265c552d1a', quantity: 2 }
+                                ] 
+                            } 
+                        }
                     }),
                     addProduct: (productData) => Promise.resolve({ data: productData }),
                     removeProduct: (productId) => Promise.resolve({ data: { productId } })
@@ -53,8 +51,8 @@
         // Mock backend API response
         window.originalFetch = window.fetch;
         window.fetch = (url, options) => {
-            if (url.includes("/store-events/campaign")) {
-                console.log("Mocking fetch for /store-events/campaign");
+            console.log("Mocked fetch called with URL:", url);
+            if (url.includes("/store-events")) {
                 return Promise.resolve({
                     ok: true,
                     json: () => Promise.resolve({
@@ -62,28 +60,61 @@
                         status_code: 200,
                         message: '',
                         data: [
-                            // Mocked campaign data (you can customize this)
                             {
                                 id: 617,
                                 title: 'Mock Campaign',
                                 trigger_product_type: { value_string: 'all products' },
-                                action_products: [{ uuid: 'product1', name: { en: 'Mock Product 1' }, quantity: 10 }],
+                                action_products: [
+                                    { 
+                                        uuid: '413d8d37-73fd-4b55-a1f9-814ffa92f9ef', 
+                                        name: { en: 'Mock Product 1' }, 
+                                        quantity: 10,
+                                        price: 100,
+                                        currency: 'USD'
+                                    }
+                                ],
                                 coupon: { code: 'MOCKCOUPON' },
                                 is_product_coupon_enabled: true,
+                                event: { id: 2 }, // Assuming 2 is for 'add-to-cart'
+                                card: {
+                                    title: { en: 'Special Offer!' },
+                                    description: { en: 'Don\'t miss this amazing deal!' }
+                                },
+                                status: { value: 1 },
+                                priority: 1
                             },
                         ]
                     })
                 });
-            } else {
-                return window.originalFetch(url, options); // Fall back to original fetch for other requests
+            } else if (url.includes("/store-front/plugin-settings")) {
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve({
+                        enabled: true,
+                        display_type: "popup",
+                        trigger_type: "exit_intent",
+                        delay: 5000,
+                        frequency: "once_per_session",
+                        modalRadius: "10px",
+                        modalBackground: "#ffffff",
+                        mainColor: "#4CAF50",
+                        subColor: "#2196F3",
+                        fontFamily: "Arial, sans-serif",
+                        fontSize: "16px",
+                        buttonRadius: "5px",
+                        animationDuration: "0.3s",
+                        maxWidth: "600px",
+                        customCSS: "",
+                        userCSS: ""
+                    })
+                });
             }
+            return window.originalFetch(url, options);
         };
-        
     </script>
 
     <script src="../dist/index.js"></script>
     <script>
-
         const product1 = '413d8d37-73fd-4b55-a1f9-814ffa92f9ef';  
         const product2 = '052b288f-2d2c-4456-b2b9-f8265c552d1a';  
 
@@ -103,8 +134,12 @@
         document.getElementById('triggerStartCheckout').addEventListener('click', () => 
             dispatchEvent('start-checkout'));
         document.getElementById('triggerPurchase').addEventListener('click', () => 
-            dispatchEvent('purchase', [{ product_id: product1, quantity: 1 }, { product_id: product2, quantity: 2 }]));
-
+            dispatchEvent('purchase', { 
+                products: [
+                    { product_id: product1, quantity: 1 }, 
+                    { product_id: product2, quantity: 2 }
+                ]
+            }));
 
         document.getElementById('simulateProductPage').addEventListener('click', () => {
             history.pushState(null, '', `/products/${product1}`);
@@ -119,7 +154,12 @@
         });
         document.getElementById('simulateOrderCompletePage').addEventListener('click', () => {
             history.pushState(null, '', '/order-completed/123');
-            dispatchEvent('purchase', [{ product_id: product1, quantity: 1 }, { product_id: product2, quantity: 2 }]);
+            dispatchEvent('purchase', { 
+                products: [
+                    { product_id: product1, quantity: 1 }, 
+                    { product_id: product2, quantity: 2 }
+                ]
+            });
         });
     </script>
 </body>

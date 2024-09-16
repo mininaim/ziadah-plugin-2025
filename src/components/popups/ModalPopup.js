@@ -10,7 +10,7 @@ export class ModalPopup extends AbstractPopup {
       JSON.stringify(campaignData, null, 2)
     );
 
-    const customStyles = parseCustomCSS(settings.customCSS);
+    const customStyles = parseCustomCSS(settings.customCSS || "");
 
     const modalElement = document.createElement("div");
     modalElement.classList.add("ziadah-popup", "ziadah-modal");
@@ -21,10 +21,11 @@ export class ModalPopup extends AbstractPopup {
       ${sanitizeCSS(customStyles)}
     `;
 
-    modalElement.innerHTML = this.generateModalContent(campaignData);
+    modalElement.innerHTML = '<div class="modal-content"></div>';
 
     modalElement.prepend(styles);
     this.popupElement = modalElement;
+    this.contentElement = modalElement.querySelector(".modal-content");
     this.shadowRoot.appendChild(modalElement);
 
     this.setupEventListeners();
@@ -40,15 +41,21 @@ export class ModalPopup extends AbstractPopup {
     lastEventProductId,
     campaignSettings
   ) {
-    console.log("Showing products in modal popup");
+    console.log("Showing products in modal popup", {
+      actionProducts,
+      triggerProducts,
+      options,
+      campaignTypeId,
+      card,
+      alternativeProducts,
+      isAlternativeEnabled,
+      lastEventProductId,
+      campaignSettings,
+    });
 
     const campaignData = {
-      title: {
-        [this.adapter.getLanguage()]: card?.title || "No Title",
-      },
-      description: {
-        [this.adapter.getLanguage()]: card?.description || "No Description",
-      },
+      title: card?.title || { en: "No Title" },
+      description: card?.description || { en: "No Description" },
       action_products: actionProducts,
       coupon: options?.coupon,
     };
@@ -57,10 +64,12 @@ export class ModalPopup extends AbstractPopup {
     this.show();
   }
 
-  updateContent(data) {
-    // Generate the modal content based on the data provided
-    const content = this.generateModalContent(data);
-    this.update(content);
+  updateContent(campaignData) {
+    console.log("Updating modal content with data:", campaignData);
+    const content = this.generateModalContent(campaignData);
+    if (this.contentElement) {
+      this.contentElement.innerHTML = content;
+    }
   }
 
   show() {
@@ -156,23 +165,28 @@ export class ModalPopup extends AbstractPopup {
     const language = this.adapter.getLanguage();
 
     const title =
-      campaignData.title?.[language] || campaignData.title?.en || "No Title";
+      campaignData?.title?.[language] || campaignData?.title?.en || "No Title";
     const description =
-      campaignData.description?.[language] ||
-      campaignData.description?.en ||
+      campaignData?.description?.[language] ||
+      campaignData?.description?.en ||
       "No Description";
 
-    const actionProducts = campaignData.action_products || [];
-    const coupon = campaignData.coupon || null;
+    const actionProducts = campaignData?.action_products || [];
+    const coupon = campaignData?.coupon || null;
+
+    console.log("Generating modal content with:", {
+      title,
+      description,
+      actionProducts,
+      coupon,
+    });
 
     return `
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>${title}</h2>
-        <p>${description}</p>
-        ${this.generateProductList(actionProducts)}
-        ${this.generateCouponSection(coupon)}
-      </div>
+      <span class="close">&times;</span>
+      <h2>${title}</h2>
+      <p>${description}</p>
+      ${this.generateProductList(actionProducts)}
+      ${this.generateCouponSection(coupon)}
     `;
   }
 

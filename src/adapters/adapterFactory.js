@@ -1,13 +1,13 @@
-import { MockAdapter } from "./MockAdapter";
-
 import { ZidAdapter } from "./ZidAdapter";
 import { ShopifyAdapter } from "./ShopifyAdapter";
 import { SallaAdapter } from "./SallaAdapter";
+import { MockAdapter } from "./MockAdapter";
 
 let adapterInstance = null;
 
 export function getPlatform() {
-  if (process.env.USE_MOCK_DATA === "true") {
+  if (window.USE_MOCK_DATA === true) {
+    console.log("Using mock platform due to global USE_MOCK_DATA flag");
     return "mock";
   }
   if (typeof window !== "undefined" && window.Shopify) return "shopify";
@@ -25,17 +25,10 @@ export function createAdapter(platform) {
 
   console.log("Creating adapter for platform:", platform);
 
-  // if (
-  //   process.env.NODE_ENV === "production" &&
-  //   (process.env.USE_MOCK_DATA === "true" || platform === "mock")
-  // ) {
-  //   throw new Error("MockAdapter should not be used in production");
-  // }
-
   let AdapterClass;
 
-  if (process.env.USE_MOCK_DATA === "true") {
-    console.log("Using MockAdapter due to USE_MOCK_DATA environment variable");
+  if (window.USE_MOCK_DATA === true) {
+    console.log("Using MockAdapter due to global USE_MOCK_DATA flag");
     AdapterClass = MockAdapter;
   } else {
     switch (platform.toLowerCase()) {
@@ -48,16 +41,26 @@ export function createAdapter(platform) {
       case "salla":
         AdapterClass = SallaAdapter;
         break;
+      case "mock":
+        AdapterClass = MockAdapter;
+        break;
       default:
         console.error(`Unsupported platform: ${platform}`);
         if (process.env.NODE_ENV === "production") {
           throw new Error(`Unsupported platform in production: ${platform}`);
         }
-        AdapterClass = MockAdapter;
+        console.log("Falling back to ZidAdapter for unsupported platform");
+        AdapterClass = ZidAdapter;
     }
   }
 
   const adapter = new AdapterClass();
+
+  if (adapter instanceof MockAdapter) {
+    console.log(
+      "MockAdapter instance created. This should be using mockup.json data."
+    );
+  }
 
   const requiredMethods = ["getLanguage", "fetchSettings", "getStoreId"];
   requiredMethods.forEach((method) => {

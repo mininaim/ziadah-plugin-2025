@@ -1,23 +1,27 @@
 import { AbstractEcommerceAdapter } from "./AbstractEcommerceAdapter";
+import mockupData from "../mock/mockup.json";
 import {
-  mockProducts,
-  mockCampaigns,
-  mockSettings,
   mockCart,
   mockProductVariants,
   mockOrders,
+  mockSettings,
 } from "../mock/mockData";
 
 export class MockAdapter extends AbstractEcommerceAdapter {
   constructor() {
     console.log("MockAdapter constructed.");
     super();
+    this.campaigns = mockupData;
+
     this.cart = { ...mockCart };
     this.storeId = "c6e9b54f-60d1-4d10-9349-3edac4ac130d";
     this.language = "en";
     this.settingsInitialized = false;
     this.cachedSettings = null;
     this.delay = 100;
+
+    console.log("Mockup data loaded:", JSON.stringify(this.campaigns, null, 2));
+    console.log("Mock cart:", JSON.stringify(mockCart, null, 2));
   }
 
   async simulateDelay() {
@@ -35,7 +39,13 @@ export class MockAdapter extends AbstractEcommerceAdapter {
 
   async addToCart(productData) {
     const { productId, quantity } = productData;
-    const product = mockProducts.find((p) => p.uuid === productId);
+    const product = this.campaigns.data
+      .flatMap((campaign) => [
+        ...campaign.action_products,
+        ...campaign.trigger_products,
+      ])
+      .find((p) => p.uuid === productId);
+
     if (product) {
       this.cart.products.push({
         id: Date.now().toString(),
@@ -66,31 +76,21 @@ export class MockAdapter extends AbstractEcommerceAdapter {
     console.log(
       `MockAdapter.fetchCampaigns called with event ID: ${eventId}, store ID: ${storeId}`
     );
-    console.log("MockAdapter.fetchCampaigns returning", mockCampaigns);
+    console.log("Available campaigns:", this.campaigns.data.length);
 
     await this.simulateDelay();
 
-    const filteredCampaigns = mockCampaigns.data.filter(
+    const filteredCampaigns = this.campaigns.data.filter(
       (campaign) => campaign.event.id === parseInt(eventId)
     );
 
-    if (Math.random() < 0.1) {
-      return {
-        is_success: false,
-        status_code: 500,
-        message: "Internal Server Error",
-        data: [],
-      };
-    }
+    console.log("Filtered campaigns:", filteredCampaigns);
 
     return {
-      is_success: true,
-      status_code: 200,
-      message: "",
+      ...this.campaigns,
       data: filteredCampaigns,
     };
   }
-
   async getCampaignData(campaignId, eventId, actionProducts, storeId) {
     console.log(
       `MockAdapter.getCampaignData called with campaign ID: ${campaignId}, event ID: ${eventId}, store ID: ${storeId}`
@@ -98,19 +98,23 @@ export class MockAdapter extends AbstractEcommerceAdapter {
 
     await this.simulateDelay();
 
-    const campaign = mockCampaigns.data.find(
-      (c) => c.id === parseInt(campaignId) && c.event.id === parseInt(eventId)
+    const campaign = this.campaigns.data.find(
+      (c) => c.id === parseInt(campaignId)
     );
+    console.log("Found campaign:", campaign);
 
     if (campaign) {
-      return {
+      const result = {
         ...campaign,
-        action_products: actionProducts
-          .map((productId) => mockProducts.find((p) => p.uuid === productId))
-          .filter(Boolean),
+        action_products: campaign.action_products.filter((product) =>
+          actionProducts.includes(product.uuid)
+        ),
       };
+      console.log("Returning campaign data:", result);
+      return result;
     }
 
+    console.log("No matching campaign found");
     return null;
   }
 
@@ -147,7 +151,7 @@ export class MockAdapter extends AbstractEcommerceAdapter {
   }
 
   async fetchProductVariants(uuid, selectedAttributes, lang) {
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await this.simulateDelay();
     return mockProductVariants[uuid] || [];
   }
 

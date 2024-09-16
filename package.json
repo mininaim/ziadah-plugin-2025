@@ -5,7 +5,7 @@
   "main": "dist/bundle.js",
   "scripts": {
     "dev": "USE_MOCK_DATA=true NODE_ENV=development rollup -c -w",
-    "build": "USE_MOCK_DATA=false NODE_ENV=production rollup -c",
+    "build": "USE_MOCK_DATA=true NODE_ENV=production rollup -c",
     "test": "jest"
   },
   "keywords": [
@@ -20,11 +20,12 @@
     "@babel/preset-env": "^7.15.0",
     "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-commonjs": "^20.0.0",
+    "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^13.0.4",
     "@rollup/plugin-replace": "^5.0.7",
+    "jest": "^27.0.6",
     "rollup": "^2.56.3",
-    "rollup-plugin-terser": "^7.0.2",
-    "jest": "^27.0.6"
+    "rollup-plugin-terser": "^7.0.2"
   },
   "dependencies": {
     "dotenv": "^16.4.5"

@@ -137,7 +137,7 @@ export class ZidAdapter extends AbstractEcommerceAdapter {
         );
       }
 
-      console.log("Campaign data:", result);
+      // console.log("Campaign data:", result);
       return result;
     } catch (error) {
       console.error("Error getting campaign data:", error);

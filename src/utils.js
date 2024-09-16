@@ -43,6 +43,10 @@ export function t(key, params = {}) {
   const translations = languages[lang];
 
   let translation = translations[key] || key;
+  if (key === "campaign_error" && !translations[key]) {
+    translation = "An error occurred while processing the campaign.";
+  }
+
   Object.entries(params).forEach(([param, value]) => {
     translation = translation.replace(
       new RegExp(`{{\\s*${param}\\s*}}`, "g"),
