@@ -15,6 +15,7 @@ export class ZidAdapter extends AbstractEcommerceAdapter {
   constructor() {
     super();
     this.zid = window.zid;
+    // this.storeId = window.store_uuid || 'test-store-id';
     this.storeId = window.store_uuid;
     this.language = document.documentElement.lang || "en";
     this.settingsInitialized = false;
