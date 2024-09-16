@@ -35,6 +35,10 @@ export class AbstractEcommerceAdapter {
     throw new Error("fetchSettings method must be implemented");
   }
 
+  logApiCall(endpoint, params) {
+    console.log(`API Call: ${endpoint}`, params);
+  }
+
   getLanguage() {
     throw new Error("Method 'getLanguage' must be implemented.");
   }

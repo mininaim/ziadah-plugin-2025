@@ -50,6 +50,19 @@ class ZiadahPlugin extends HTMLElement {
       const state = getState();
       console.log(`Using language: ${state.language}`);
 
+      // Set language on the adapter
+      if (typeof adapter.setLanguage === "function") {
+        adapter.setLanguage(state.language);
+        console.log(`Set language on adapter: ${state.language}`);
+      }
+
+      // Set store ID on the adapter
+      if (typeof adapter.setStoreId === "function") {
+        const storeId = window.store_uuid || "default-store-id";
+        adapter.setStoreId(storeId);
+        console.log(`Set store ID on adapter: ${storeId}`);
+      }
+
       if (!adapter.settingsInitialized) {
         console.log("Fetching adapter settings");
         await adapter.fetchSettings();
@@ -58,6 +71,12 @@ class ZiadahPlugin extends HTMLElement {
       } else {
         console.log("Adapter settings already initialized");
       }
+
+      // Log the current adapter state
+      console.log("Adapter state after initialization:", {
+        language: adapter.getLanguage ? adapter.getLanguage() : "N/A",
+        storeId: adapter.getStoreId ? adapter.getStoreId() : "N/A",
+      });
     } catch (error) {
       console.error("Error initializing adapter:", error);
       setState({ language: "en" });

@@ -1,3 +1,5 @@
+import { getState } from "../../store";
+
 export class AbstractPopup {
   constructor(shadowRoot, adapter) {
     this.shadowRoot = shadowRoot;

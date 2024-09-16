@@ -104,6 +104,9 @@ export class ZidAdapter extends AbstractEcommerceAdapter {
   async fetchCampaigns(eventId) {
     const url = `${API_ENDPOINTS.STORE_EVENTS}?store-id=${this.storeId}&event-id=${eventId}`;
     try {
+      console.log(
+        `Fetching campaigns for store ID: ${this.storeId}, event ID: ${eventId}`
+      );
       return await cachedFetch(url);
     } catch (error) {
       console.error("Error fetching campaigns:", error);

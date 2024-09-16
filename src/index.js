@@ -2,6 +2,7 @@
 
 import "./plugin-element.js";
 import { getState, setState } from "./store.js";
+import { notifyUser } from "./utils.js";
 
 let isZiadahInitialized = false;
 
@@ -43,6 +44,9 @@ function initZiadahPlugin() {
   window.isZiadahPluginActive = () => {
     return getState().pluginActive;
   };
+
+  window.ZiadahPlugin = window.ZiadahPlugin || {};
+  window.ZiadahPlugin.notifyUser = notifyUser;
 
   isZiadahInitialized = true;
   console.log("Ziadah plugin initialized successfully");

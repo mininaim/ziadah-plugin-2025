@@ -15,7 +15,7 @@ export class MockAdapter extends AbstractEcommerceAdapter {
 
     this.cart = { ...mockCart };
     this.storeId = "c6e9b54f-60d1-4d10-9349-3edac4ac130d";
-    this.language = "en";
+    this.language = "ar";
     this.settingsInitialized = false;
     this.cachedSettings = null;
     this.delay = 100;
@@ -35,6 +35,20 @@ export class MockAdapter extends AbstractEcommerceAdapter {
 
   getLanguage() {
     return this.language;
+  }
+
+  setLanguage(lang) {
+    this.language = lang;
+    console.log(`MockAdapter: Language set to ${lang}`);
+  }
+
+  setStoreId(id) {
+    this.storeId = id;
+    console.log(`MockAdapter: Store ID set to ${id}`);
+  }
+
+  getStoreId() {
+    return this.storeId;
   }
 
   async addToCart(productData) {
