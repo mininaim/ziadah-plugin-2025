@@ -43,9 +43,9 @@ export function t(key, params = {}) {
   const translations = languages[lang];
 
   let translation = translations[key] || key;
-  console.log(
-    `Translating key "${key}" to "${translation}" in language "${lang}"`
-  );
+  // console.log(
+  //   `Translating key "${key}" to "${translation}" in language "${lang}"`
+  // );
 
   Object.entries(params).forEach(([param, value]) => {
     translation = translation.replace(

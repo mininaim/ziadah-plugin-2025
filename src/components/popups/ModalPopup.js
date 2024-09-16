@@ -1,15 +1,9 @@
 import { AbstractPopup } from "./AbstractPopup";
 import { parseCustomCSS } from "../../utils/cssParser";
 import { sanitizeCSS } from "../../utils/cssSanitizer";
-import { getStoreFontFamily, loadRubikFont } from "../../utils";
-import { t } from "../../utils";
+import { getStoreFontFamily, loadRubikFont, t } from "../../utils";
 
 export class ModalPopup extends AbstractPopup {
-  constructor() {
-    super();
-    this.t = t.bind(this);
-  }
-
   async create(campaignData, settings) {
     console.log(
       "Creating modal popup with data:",
@@ -36,6 +30,7 @@ export class ModalPopup extends AbstractPopup {
 
     this.setupEventListeners();
   }
+
   async showProducts(
     actionProducts,
     triggerProducts,
@@ -100,10 +95,6 @@ export class ModalPopup extends AbstractPopup {
     }
   }
 
-  updateContent(campaignData) {
-    this.update(this.generateModalContent(campaignData));
-  }
-
   handleAddToCart(productData) {
     console.log("Adding to cart:", productData);
 
@@ -146,22 +137,80 @@ export class ModalPopup extends AbstractPopup {
       }
       .modal-content {
         background-color: #fefefe;
-        margin: 15% auto;
+        margin: 5% auto;
         padding: 20px;
         border: 1px solid #888;
-        width: 80%;
-        max-width: 600px;
+        width: 90%;
+        max-width: 800px;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
       }
       .close {
         color: #aaa;
         float: right;
         font-size: 28px;
         font-weight: bold;
+        cursor: pointer;
       }
       .close:hover,
       .close:focus {
         color: black;
         text-decoration: none;
+      }
+      .products-container {
+        display: flex;
+        flex-direction: column;
+      }
+      .product {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
+      }
+      .product-image {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        margin-right: 20px;
+        border-radius: 8px;
+      }
+      .product h3 {
+        margin: 0 0 10px 0;
+        font-size: 1.2em;
+      }
+      .product p {
+        margin: 5px 0;
+      }
+      .add-to-cart {
+        padding: 10px 20px;
+        background-color: #007BFF;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 10px;
+      }
+      .add-to-cart:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+      .coupon {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      .coupon p {
+        margin: 0 0 10px 0;
+      }
+      .copy-coupon {
+        padding: 5px 10px;
+        background-color: #28a745;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
         cursor: pointer;
       }
     `;
@@ -170,12 +219,35 @@ export class ModalPopup extends AbstractPopup {
   generateModalContent(campaignData) {
     const language = this.adapter.getLanguage();
 
-    const title =
-      campaignData?.title?.[language] || campaignData?.title?.en || "No Title";
-    const description =
-      campaignData?.description?.[language] ||
-      campaignData?.description?.en ||
-      "No Description";
+    // Handle title
+    let title;
+    if (typeof campaignData.title === "string") {
+      title = campaignData.title;
+    } else if (
+      typeof campaignData.title === "object" &&
+      campaignData.title !== null
+    ) {
+      title =
+        campaignData.title[language] || campaignData.title.en || "No Title";
+    } else {
+      title = "No Title";
+    }
+
+    // Handle description
+    let description;
+    if (typeof campaignData.description === "string") {
+      description = campaignData.description;
+    } else if (
+      typeof campaignData.description === "object" &&
+      campaignData.description !== null
+    ) {
+      description =
+        campaignData.description[language] ||
+        campaignData.description.en ||
+        "No Description";
+    } else {
+      description = "No Description";
+    }
 
     const actionProducts = campaignData?.action_products || [];
     const coupon = campaignData?.coupon || null;
@@ -191,42 +263,87 @@ export class ModalPopup extends AbstractPopup {
       <span class="close">&times;</span>
       <h2>${title}</h2>
       <p>${description}</p>
-      ${this.generateProductList(actionProducts)}
+      <div class="products-container">
+        ${this.generateProductList(actionProducts)}
+      </div>
       ${this.generateCouponSection(coupon)}
     `;
   }
 
   generateProductList(products) {
     if (!Array.isArray(products) || products.length === 0) {
-      return `<p>${this.t("no_products_available")}</p>`;
+      return `<p>${t("no_products_available")}</p>`;
     }
 
     return products
       .map((product) => {
-        const name =
-          product.name?.[this.adapter.getLanguage()] ||
-          product.name?.en ||
-          "Unnamed Product";
+        // Determine the product name based on its type
+        let name;
+        if (typeof product.name === "string") {
+          name = product.name;
+        } else if (typeof product.name === "object" && product.name !== null) {
+          name =
+            product.name[this.adapter.getLanguage()] ||
+            product.name.en ||
+            "Unnamed Product";
+        } else {
+          name = "Unnamed Product";
+        }
+
+        // Determine the product image
+        let imageUrl = "";
+        if (Array.isArray(product.images) && product.images.length > 0) {
+          // Prefer 'small' size, fallback to 'thumbnail', then 'medium', etc.
+          const imageSizes = [
+            "small",
+            "thumbnail",
+            "medium",
+            "large",
+            "full_size",
+          ];
+          for (const size of imageSizes) {
+            if (product.images[0].images[size]) {
+              imageUrl = product.images[0].images[size];
+              break;
+            }
+          }
+        }
+
+        // Determine quantity information
         let quantityInfo;
         if (product.is_infinite) {
-          quantityInfo = this.t("unlimited_stock");
+          quantityInfo = t("unlimited_stock");
         } else if (product.quantity > 0) {
-          quantityInfo = `${this.t("in_stock")}: ${product.quantity} ${this.t(
+          quantityInfo = `${t("in_stock")}: ${product.quantity} ${t(
             "items_left"
           )}`;
         } else {
-          quantityInfo = this.t("out_of_stock");
+          quantityInfo = t("out_of_stock");
         }
+
         return `
           <div class="product">
-            <h3>${name}</h3>
-            <p>${product.price || "N/A"} ${product.currency || ""}</p>
-            <p>${quantityInfo}</p>
-            <button class="add-to-cart" data-product-id="${
-              product.uuid || ""
-            }" ${product.quantity === 0 ? "disabled" : ""}>${this.t(
-          "add_to_cart"
-        )}</button>
+            ${
+              imageUrl
+                ? `<img src="${imageUrl}" alt="${this.escapeHtml(
+                    name
+                  )}" class="product-image" loading="lazy" onerror="this.src='path/to/default-image.png'"/>`
+                : ""
+            }
+            <div class="product-details">
+              <h3>${this.escapeHtml(name)}</h3>
+              <p>${
+                product.price
+                  ? this.formatPrice(product.price, product.currency)
+                  : "N/A"
+              }</p>
+              <p>${quantityInfo}</p>
+              <button class="add-to-cart" data-product-id="${this.escapeHtml(
+                product.uuid || ""
+              )}" ${product.quantity === 0 ? "disabled" : ""}>
+                ${t("add_to_cart")}
+              </button>
+            </div>
           </div>
         `;
       })
@@ -239,17 +356,54 @@ export class ModalPopup extends AbstractPopup {
     }
     return `
       <div class="coupon">
-        <p>${coupon.code}</p>
-        <button class="copy-coupon" data-coupon-code="${coupon.code}">${this.t(
-      "copy_coupon"
-    )}</button>
+        <p>${this.escapeHtml(coupon.code)}</p>
+        <button class="copy-coupon" data-coupon-code="${this.escapeHtml(
+          coupon.code
+        )}">${t("copy_coupon")}</button>
       </div>
     `;
   }
 
+  escapeHtml(text) {
+    const map = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;",
+    };
+    return String(text).replace(/[&<>"']/g, function (m) {
+      return map[m];
+    });
+  }
+
+  formatPrice(price, currency) {
+    const formatter = new Intl.NumberFormat(this.adapter.getLanguage(), {
+      style: "currency",
+      currency: currency || "USD",
+    });
+    return formatter.format(price / 100); // Assuming price is in cents
+  }
+
   // t(key) {
-  //   return key;
+  //   // Implement your translation logic here.
+  //   // For now, returning the key itself.
+  //   const translations = {
+  //     no_products_available: "No products available.",
+  //     unlimited_stock: "Unlimited stock",
+  //     in_stock: "In stock",
+  //     items_left: "items left",
+  //     out_of_stock: "Out of stock",
+  //     add_to_cart: "Add to Cart",
+  //     copy_coupon: "Copy Coupon",
+  //     // Add other translations as needed
+  //   };
+  //   return translations[key] || key;
   // }
+
+  t(key) {
+    return key;
+  }
 
   setupEventListeners() {
     this.popupElement.addEventListener("click", (e) => {
