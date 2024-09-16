@@ -39,6 +39,20 @@ export class ZidAdapter extends AbstractEcommerceAdapter {
     return language;
   }
 
+  setLanguage(lang) {
+    this.language = lang;
+    console.log(`ZidAdapter: Language set to ${lang}`);
+  }
+
+  setStoreId(id) {
+    this.storeId = id;
+    console.log(`ZidAdapter: Store ID set to ${id}`);
+  }
+
+  getStoreId() {
+    return this.storeId;
+  }
+
   // clone pluginActive for other methods
   // async fetchCart() {
   //   if (getState().pluginActive) {
