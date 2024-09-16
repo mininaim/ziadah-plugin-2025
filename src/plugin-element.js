@@ -1,3 +1,5 @@
+// plugin-element.js
+
 import { createAdapter, getPlatform } from "./adapters/adapterFactory";
 import { PopupFactory } from "./components/popups/PopupFactory";
 import { campaign, restartCampaign } from "./campaign";
@@ -6,7 +8,6 @@ import { mainEvent, productPageLeaveEvent, urlToCheck } from "./config";
 import { initializeSettings } from "./settings";
 import { t, notifyUser } from "./utils";
 
-let singletonAdapter = null;
 let popupFactoryInstance = null;
 
 class ZiadahPlugin extends HTMLElement {
@@ -16,74 +17,56 @@ class ZiadahPlugin extends HTMLElement {
 
     this._adapter = null;
     this.popupFactory = null;
+    this.isInitialized = false;
   }
 
   get adapter() {
     if (!this._adapter) {
+      console.log("Creating new adapter");
       const platform = this.getPlatform();
       this._adapter = createAdapter(platform);
       setState({ adapter: this._adapter });
     }
     return this._adapter;
-
-    // if (!this._adapter) {
-    //   // Use createAdapter function to get the appropriate adapter
-    //   this._adapter = createAdapter(this.getPlatform());
-    //   setState({ adapter: this._adapter });
-    // }
-    // return this._adapter;
-
-    // if (!this._adapter) {
-    //   if (!singletonAdapter) {
-    //     singletonAdapter = createAdapter("mock");
-    //     console.log("Created new adapter:", singletonAdapter);
-    //   } else {
-    //     console.log("Returning existing adapter instance");
-    //   }
-    //   this._adapter = singletonAdapter;
-    //   setState({ adapter: this._adapter });
-    // }
-    // return this._adapter;
   }
 
   getPlatform() {
-    return "mock";
+    return getPlatform();
   }
 
   checkPluginState() {
-    const state = getState();
-    if (state.pluginActive) {
-      console.log("Plugin is already active, skipping initialization");
+    if (this.isInitialized) {
+      console.warn("Plugin is already active, skipping initialization");
       return true;
     }
-    setState({ pluginActive: true });
     return false;
   }
 
-  // handleAddToCart(productId) {
-  //   this.campaign(
-  //     "add-to-cart",
-  //     "add-to-cart",
-  //     { id: productId },
-  //     false
-  //   );
-  // }
   async initializeAdapter() {
+    console.log("Initializing adapter");
+    const adapter = this.adapter; // Access once and store locally
     try {
-      if (typeof this.adapter.getLanguage === "function") {
-        setState({ language: this.adapter.getLanguage() });
+      if (typeof adapter.getLanguage === "function") {
+        const language = adapter.getLanguage();
+        console.log(`Setting language to: ${language}`);
+        setState({ language });
       } else {
-        console.warn("getLanguage method not found on adapter");
+        console.warn(
+          "getLanguage method not found on adapter, defaulting to 'en'"
+        );
         setState({ language: "en" });
       }
 
-      if (!this.adapter.settingsInitialized) {
-        await this.adapter.fetchSettings();
-        this.adapter.settingsInitialized = true;
+      if (!adapter.settingsInitialized) {
+        console.log("Fetching adapter settings");
+        await adapter.fetchSettings();
+        adapter.settingsInitialized = true;
+        console.log("Adapter settings initialized");
+      } else {
+        console.log("Adapter settings already initialized");
       }
     } catch (error) {
       console.error("Error initializing adapter:", error);
-
       setState({ language: "en" });
     }
   }
@@ -101,11 +84,24 @@ class ZiadahPlugin extends HTMLElement {
   }
 
   async connectedCallback() {
-    if (this.checkPluginState()) return;
+    console.log("ZiadahPlugin connectedCallback called");
+    if (this.checkPluginState()) {
+      console.log("Skipping initialization due to plugin state");
+      return;
+    }
 
-    await this.initializeAdapter();
-    this.initPopupFactory();
-    await this.initializePlugin();
+    this.isInitialized = true;
+    setState({ pluginActive: true });
+
+    try {
+      await this.initializeAdapter();
+      this.initPopupFactory();
+      await this.initializePlugin();
+      console.log("ZiadahPlugin initialization completed successfully");
+    } catch (error) {
+      console.error("Error during ZiadahPlugin initialization:", error);
+      setState({ pluginActive: false });
+    }
   }
 
   async initializePlugin() {
@@ -120,8 +116,8 @@ class ZiadahPlugin extends HTMLElement {
       await campaign.call(this, mainEvent, "start-checkout");
     } else if (
       lastPageUrl !== currentPath &&
-      lastPageUrl?.includes("/products/") &&
-      lastPageUrl !== "/products/"
+      lastPageUrl.includes("/products/") &&
+      !currentPath.includes("/products/")
     ) {
       await campaign.call(this, productPageLeaveEvent, "product-page-leave", {
         id: sessionStorage.getItem("last_product_id"),
@@ -137,31 +133,33 @@ class ZiadahPlugin extends HTMLElement {
   }
 
   setupEventListeners() {
-    document.addEventListener("product-view", (e) =>
-      campaign.call(this, "1", "product-view", e.detail)
-    );
-    document.addEventListener("add-to-cart", (e) =>
-      campaign.call(this, "2", "add-remove-cart", e.detail)
-    );
-    document.addEventListener("remove-from-cart", (e) =>
-      campaign.call(this, "3", "add-remove-cart", e.detail)
-    );
-    document.addEventListener("start-checkout", () =>
-      campaign.call(this, "4", "start-checkout")
-    );
-    document.addEventListener("purchase", (e) => this.handlePurchase(e.detail));
+    // Store bound event handlers for later removal
+    this.handleProductView = (e) =>
+      campaign.call(this, "1", "product-view", e.detail, false);
+    this.handleAddToCart = (e) =>
+      campaign.call(this, "2", "add-remove-cart", e.detail, false);
+    this.handleRemoveFromCart = (e) =>
+      campaign.call(this, "3", "add-remove-cart", e.detail, false);
+    this.handleStartCheckout = () =>
+      campaign.call(this, "4", "start-checkout", {}, false);
+    this.handlePurchaseEvent = (e) => this.handlePurchase(e.detail, false);
+
+    document.addEventListener("product-view", this.handleProductView);
+    document.addEventListener("add-to-cart", this.handleAddToCart);
+    document.addEventListener("remove-from-cart", this.handleRemoveFromCart);
+    document.addEventListener("start-checkout", this.handleStartCheckout);
+    document.addEventListener("purchase", this.handlePurchaseEvent);
   }
 
   async showPopup(campaignData) {
     try {
       console.log("Showing popup for campaign:", campaignData);
 
-      console.log("Campaign data:", JSON.stringify(campaignData, null, 2));
-
       const popupType =
         campaignData?.style?.title?.en?.toLowerCase() || "modal";
 
-      const settings = await this.adapter.fetchSettings();
+      const adapter = this.adapter; // Access once
+      const settings = await adapter.fetchSettings();
       console.log("Fetched settings:", settings);
 
       if (typeof settings.css !== "string") {
@@ -204,8 +202,9 @@ class ZiadahPlugin extends HTMLElement {
     );
 
     if (modalAddedProducts.length > 0) {
-      await this.adapter.sendConversionData(
-        this.adapter.getStoreId(),
+      const adapter = this.adapter; // Access once
+      await adapter.sendConversionData(
+        adapter.getStoreId(),
         modalAddedProducts
       );
       processedOrders.push(orderId);
@@ -237,6 +236,7 @@ class ZiadahPlugin extends HTMLElement {
     console.error("Unable to find order ID in the DOM");
     return null;
   }
+
   async handlePurchase(purchaseData) {
     try {
       const state = getState();
@@ -265,8 +265,6 @@ class ZiadahPlugin extends HTMLElement {
           : [],
       };
 
-      // await this.sendToAnalytics(analyticsData);
-
       const savedCampaigns = JSON.parse(
         localStorage.getItem("savedCampaigns") || "[]"
       );
@@ -289,11 +287,6 @@ class ZiadahPlugin extends HTMLElement {
       console.error("Error handling purchase:", error);
       notifyUser(t("error_processing_purchase"), true);
     }
-  }
-
-  async sendToAnalytics(data) {
-    console.log("Sending to analytics:", data);
-    // await analyticsService.sendPurchaseEvent(data);
   }
 
   updatePurchaseUI(purchaseData) {
@@ -330,15 +323,23 @@ class ZiadahPlugin extends HTMLElement {
     restartCampaign.call(this);
   }
 
-  disconnectedCallback() {
-    // Set pluginActive to false
+  cleanup() {
+    console.log("Cleaning up ZiadahPlugin");
     setState({ pluginActive: false });
+    this._adapter = null;
+    this.popupFactory = null;
+    popupFactoryInstance = null;
+  }
+
+  disconnectedCallback() {
+    console.log("ZiadahPlugin disconnectedCallback called");
+    this.cleanup();
     // Remove event listeners
     document.removeEventListener("product-view", this.handleProductView);
     document.removeEventListener("add-to-cart", this.handleAddToCart);
     document.removeEventListener("remove-from-cart", this.handleRemoveFromCart);
     document.removeEventListener("start-checkout", this.handleStartCheckout);
-    document.removeEventListener("purchase", this.handlePurchase);
+    document.removeEventListener("purchase", this.handlePurchaseEvent);
   }
 }
 

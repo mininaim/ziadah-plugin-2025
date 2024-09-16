@@ -1,4 +1,4 @@
-export const baseURL = "https://backend.ziadah.app/api/v1/zid";
+export const baseURL = "https://backend.ziadah.app/api/v1";
 export const mainEvent = "1";
 export const productPageLeaveEvent = "4";
 export const urlToCheck = "/cart/view";

@@ -38,6 +38,8 @@ export const store = new Store({
   productAdded: false,
   settings: {},
   popupType: "modal",
+  pluginActive: false,
+  campaignActive: false,
 });
 
 export const getState = () => store.getState();

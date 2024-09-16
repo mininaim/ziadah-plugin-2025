@@ -1,11 +1,26 @@
+// index.js or main entry point
+
 import "./plugin-element.js";
+import { getState, setState } from "./store.js";
 
-// Initialize the Ziadah plugin
+let isZiadahInitialized = false;
+
 function initZiadahPlugin() {
-  const ziadahPlugin = document.createElement("ziadah-plugin");
-  document.body.appendChild(ziadahPlugin);
+  console.log("Attempting to initialize Ziadah plugin");
 
-  // Global functions to restart the campaign and set the language
+  if (isZiadahInitialized) {
+    console.warn("Ziadah plugin already initialized");
+    return;
+  }
+
+  let ziadahPlugin = document.querySelector("ziadah-plugin");
+
+  if (!ziadahPlugin) {
+    ziadahPlugin = document.createElement("ziadah-plugin");
+    document.body.appendChild(ziadahPlugin);
+  }
+
+  // Expose global functions to interact with the plugin
   window.restartZiadahCampaign = () => {
     ziadahPlugin.restartCampaign();
   };
@@ -14,29 +29,29 @@ function initZiadahPlugin() {
     ziadahPlugin.setLanguage(lang);
   };
 
-  // Global function to manually trigger a campaign
   window.triggerZiadahCampaign = (eventId, eventName, eventData) => {
     const event = new CustomEvent(eventName, { detail: eventData });
     document.dispatchEvent(event);
   };
 
-  // Global function to reset the plugin state
   window.resetZiadahPlugin = () => {
     setState({ pluginActive: false });
+    isZiadahInitialized = false;
+    console.log("Ziadah plugin state reset");
   };
 
-  // Global function to check plugin state
   window.isZiadahPluginActive = () => {
     return getState().pluginActive;
   };
+
+  isZiadahInitialized = true;
+  console.log("Ziadah plugin initialized successfully");
 }
 
-// Check if the DOM is already loaded
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", initZiadahPlugin);
 } else {
   initZiadahPlugin();
 }
 
-// Expose the version of the plugin
 window.ZIADAH_PLUGIN_VERSION = "1.0.0";

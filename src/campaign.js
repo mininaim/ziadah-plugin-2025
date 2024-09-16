@@ -9,12 +9,15 @@ export async function campaign(
   restartWithLower = false
 ) {
   const state = getState();
-  if (state.pluginActive && !restartWithLower) {
-    console.log("Plugin is active, skipping campaign");
+
+  // Check if a campaign is already active
+  if (state.campaignActive && !restartWithLower) {
+    console.log("Campaign is already active, skipping campaign");
     return;
   }
 
-  setState({ pluginActive: true });
+  // Set campaignActive to true to indicate a campaign is running
+  setState({ campaignActive: true });
 
   try {
     console.log("Event callback:", JSON.stringify(eventCallback, null, 2));
@@ -25,13 +28,11 @@ export async function campaign(
       lastEventCallback: eventCallback,
     });
 
-    const state = getState();
     const adapter = state.adapter;
 
     console.log("Current adapter:", adapter);
 
     if (!restartWithLower) {
-      // const data = await adapter.fetchCampaigns(eventID, adapter.getStoreId());
       const data = await fetchCampaigns(eventID, adapter);
 
       console.log("Fetched campaigns data:", data);
@@ -43,10 +44,8 @@ export async function campaign(
           eventName
         );
 
-        // Check the filtered campaign
         console.log("Highest priority campaign:", highestPriorityCampaign);
 
-        // Check if a campaign was found
         if (!highestPriorityCampaign) {
           console.log("No matching campaign found");
           return;
@@ -59,7 +58,6 @@ export async function campaign(
           adapter
         );
 
-        // Log to check the campaign data
         console.log("Campaign data:", result);
 
         setState({
@@ -95,7 +93,8 @@ export async function campaign(
     logError(error, "Operation Context");
     notifyUser(t("campaign_error"), true);
   } finally {
-    setState({ pluginActive: false });
+    // Reset campaignActive to false when campaign ends
+    setState({ campaignActive: false });
   }
 }
 

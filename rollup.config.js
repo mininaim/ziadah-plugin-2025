@@ -63,7 +63,6 @@ const createConfig = (outputFile, minimize) => ({
     minimize && terser(),
   ],
   onwarn(warning, warn) {
-    // Ignore certain warnings
     if (warning.code === "CIRCULAR_DEPENDENCY" || warning.code === "EVAL") {
       return;
     }

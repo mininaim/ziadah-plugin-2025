@@ -1,5 +1,6 @@
-import { ZidAdapter } from "./ZidAdapter";
 import { MockAdapter } from "./MockAdapter";
+
+import { ZidAdapter } from "./ZidAdapter";
 import { ShopifyAdapter } from "./ShopifyAdapter";
 import { SallaAdapter } from "./SallaAdapter";
 
