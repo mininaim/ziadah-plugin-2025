@@ -37,15 +37,23 @@ export function getFromLocalStorage(key) {
 
 export function t(key, params = {}) {
   const state = getState();
+  console.log("Current state language:", state.language);
+
   const lang = supportedLanguages.includes(state.language)
     ? state.language
     : defaultLanguage;
+  console.log("Selected language for translation:", lang);
+
   const translations = languages[lang];
+  console.log(
+    "Available translations for this language:",
+    Object.keys(translations)
+  );
 
   let translation = translations[key] || key;
-  // console.log(
-  //   `Translating key "${key}" to "${translation}" in language "${lang}"`
-  // );
+  console.log(
+    `Translating key "${key}" to "${translation}" in language "${lang}"`
+  );
 
   Object.entries(params).forEach(([param, value]) => {
     translation = translation.replace(
@@ -53,6 +61,8 @@ export function t(key, params = {}) {
       value
     );
   });
+
+  console.log("Final translated text:", translation);
   return translation;
 }
 

@@ -27,12 +27,16 @@ export class ZidAdapter extends AbstractEcommerceAdapter {
     this.storeId = window.store_uuid;
 
     this.language = document.documentElement.lang || "en";
+    console.log("ZidAdapter initialized with language:", this.language);
     this.settingsInitialized = false;
     this.cachedSettings = null;
   }
 
   getLanguage() {
-    return this.language;
+    const state = getState();
+    const language = state.language || this.language;
+    console.log("getLanguage called, returning:", language);
+    return language;
   }
 
   // clone pluginActive for other methods
@@ -181,7 +185,12 @@ export class ZidAdapter extends AbstractEcommerceAdapter {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           store_uuid: storeUUID,
-          products: products,
+          products: products.map((product) => ({
+            uuid: product.uuid,
+            campaign_id: product.campaign_id,
+            quantity: product.quantity,
+            gross_price: product.gross_price,
+          })),
         }),
       });
 

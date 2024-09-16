@@ -231,37 +231,19 @@ export class ModalPopup extends AbstractPopup {
   }
 
   generateModalContent(campaignData) {
-    const language = this.adapter.getLanguage();
+    const state = getState();
+    const language = state.language;
+    console.log("Current language from state:", language);
 
-    // Handle title
-    let title;
-    if (typeof campaignData.title === "string") {
-      title = campaignData.title;
-    } else if (
-      typeof campaignData.title === "object" &&
-      campaignData.title !== null
-    ) {
-      title =
-        campaignData.title[language] || campaignData.title.en || "No Title";
-    } else {
-      title = "No Title";
-    }
+    let title =
+      campaignData.title[language] || campaignData.title.en || "No Title";
+    let description =
+      campaignData.description[language] ||
+      campaignData.description.en ||
+      "No Description";
 
-    // Handle description
-    let description;
-    if (typeof campaignData.description === "string") {
-      description = campaignData.description;
-    } else if (
-      typeof campaignData.description === "object" &&
-      campaignData.description !== null
-    ) {
-      description =
-        campaignData.description[language] ||
-        campaignData.description.en ||
-        "No Description";
-    } else {
-      description = "No Description";
-    }
+    console.log("Using title:", title);
+    console.log("Using description:", description);
 
     const actionProducts = campaignData?.action_products || [];
     const coupon = campaignData?.coupon || null;

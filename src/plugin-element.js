@@ -119,6 +119,7 @@ class ZiadahPlugin extends HTMLElement {
     setState({ pluginActive: true });
 
     const htmlLang = document.documentElement.lang || "en";
+    console.log("Detected HTML lang:", htmlLang);
     setState({ language: htmlLang });
 
     try {
@@ -126,6 +127,8 @@ class ZiadahPlugin extends HTMLElement {
       this.initPopupFactory();
       await this.initializePlugin();
       console.log("ZiadahPlugin initialization completed successfully");
+      const currentState = getState();
+      console.log("Current state after initialization:", currentState);
     } catch (error) {
       console.error("Error during ZiadahPlugin initialization:", error);
       setState({ pluginActive: false });
