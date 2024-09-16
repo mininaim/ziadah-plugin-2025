@@ -1,5 +1,5 @@
 import { ModalPopup } from "./ModalPopup.js";
-import { OffcanvasPopup } from "./OffcanvasPopup.js"; // Assuming you have this
+import { OffcanvasPopup } from "./OffcanvasPopup.js";
 import { sanitizeCSS } from "../../utils/cssSanitizer.js";
 import { getStoreFontFamily, loadRubikFont } from "../../utils";
 

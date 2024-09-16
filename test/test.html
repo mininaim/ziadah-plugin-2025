@@ -33,11 +33,23 @@
     <button id="simulateCheckoutPage">Go to Checkout Page</button>
     <button id="simulateOrderCompletePage">Go to Order Complete Page</button>
 
-     <!-- <ziadah-plugin></ziadah-plugin> -->
-
-     <script>
+     <!-- Mock Zid SDK and store_uuid -->
+    <script>
         window.store_uuid = 'c6e9b54f-60d1-4d10-9349-3edac4ac130d'; // Replace with your actual store ID
-      </script>
+        
+        // Mock Zid SDK
+        window.zid = {
+            store: {
+                cart: {
+                    fetch: () => Promise.resolve({
+                        data: { cart: { status: 'completed', items: [] } }
+                    }),
+                    addProduct: (productData) => Promise.resolve({ data: productData }),
+                    removeProduct: (productId) => Promise.resolve({ data: { productId } })
+                }
+            }
+        };
+    </script>
 
     <script src="../dist/index.js"></script>
     <script>
@@ -45,12 +57,10 @@
         const product1 = '413d8d37-73fd-4b55-a1f9-814ffa92f9ef';  
         const product2 = '052b288f-2d2c-4456-b2b9-f8265c552d1a';  
 
-
         function dispatchEvent(eventName, detail = {}) {
             const event = new CustomEvent(eventName, { detail });
             document.dispatchEvent(event);
         }
-
 
         document.getElementById('triggerProductView').addEventListener('click', () => 
             dispatchEvent('product-view', { id: product1 }));

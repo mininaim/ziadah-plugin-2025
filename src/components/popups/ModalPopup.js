@@ -30,6 +30,42 @@ export class ModalPopup extends AbstractPopup {
     this.setupEventListeners();
   }
 
+  async showProducts(
+    actionProducts,
+    triggerProducts,
+    options,
+    campaignTypeId,
+    card,
+    alternativeProducts,
+    isAlternativeEnabled,
+    lastEventProductId,
+    campaignSettings
+  ) {
+    console.log("Showing products in modal popup");
+
+    // Construct campaignData in the format expected by generateModalContent
+    const campaignData = {
+      title: {
+        [this.adapter.getLanguage()]: card?.title || "No Title",
+      },
+      description: {
+        [this.adapter.getLanguage()]: card?.description || "No Description",
+      },
+      action_products: actionProducts,
+      coupon: options?.coupon,
+    };
+
+    // Update the content and show the modal
+    this.updateContent(campaignData);
+    this.show();
+  }
+
+  updateContent(data) {
+    // Generate the modal content based on the data provided
+    const content = this.generateModalContent(data);
+    this.update(content);
+  }
+
   show() {
     console.log("Showing modal popup");
     if (this.popupElement) {
@@ -129,20 +165,23 @@ export class ModalPopup extends AbstractPopup {
       campaignData.description?.en ||
       "No Description";
 
+    const actionProducts = campaignData.action_products || [];
+    const coupon = campaignData.coupon || null;
+
     return `
       <div class="modal-content">
         <span class="close">&times;</span>
         <h2>${title}</h2>
         <p>${description}</p>
-        ${this.generateProductList(campaignData.action_products || [])}
-        ${this.generateCouponSection(campaignData.coupon)}
+        ${this.generateProductList(actionProducts)}
+        ${this.generateCouponSection(coupon)}
       </div>
     `;
   }
 
   generateProductList(products) {
     if (!Array.isArray(products) || products.length === 0) {
-      return "";
+      return `<p>${this.t("no_products_available")}</p>`;
     }
 
     return products
@@ -178,7 +217,9 @@ export class ModalPopup extends AbstractPopup {
   }
 
   generateCouponSection(coupon) {
-    if (!coupon || !coupon.code) return "";
+    if (!coupon || !coupon.code) {
+      return "";
+    }
     return `
       <div class="coupon">
         <p>${coupon.code}</p>

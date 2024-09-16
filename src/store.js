@@ -29,7 +29,7 @@ export const store = new Store({
   currentCampaignID: "",
   lastEventID: "",
   lastEventName: "",
-  lastEventCallback: {},
+  lastEventData: {},
   lowerCampaign: {},
   isRestarted: false,
   killThePopup: false,

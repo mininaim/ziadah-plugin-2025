@@ -4,9 +4,10 @@ import { createAdapter, getPlatform } from "./adapters/adapterFactory";
 import { PopupFactory } from "./components/popups/PopupFactory";
 import { campaign, restartCampaign } from "./campaign";
 import { setState, getState } from "./store";
-import { mainEvent, productPageLeaveEvent, urlToCheck } from "./config";
+import { urlToCheck } from "./config";
 import { initializeSettings } from "./settings";
 import { t, notifyUser } from "./utils";
+import { EVENT_IDS } from "./utils/constants";
 
 let popupFactoryInstance = null;
 
@@ -113,13 +114,13 @@ class ZiadahPlugin extends HTMLElement {
 
     if (currentPath === urlToCheck) {
       window.isCustomURL = true;
-      await campaign.call(this, mainEvent, "start-checkout");
+      await campaign.call(this, EVENT_IDS.START_CHECKOUT, "start-checkout");
     } else if (
       lastPageUrl !== currentPath &&
       lastPageUrl.includes("/products/") &&
       !currentPath.includes("/products/")
     ) {
-      await campaign.call(this, productPageLeaveEvent, "product-page-leave", {
+      await campaign.call(this, EVENT_IDS.PRODUCT_VIEW, "product-page-leave", {
         id: sessionStorage.getItem("last_product_id"),
       });
     } else if (
@@ -135,14 +136,39 @@ class ZiadahPlugin extends HTMLElement {
   setupEventListeners() {
     // Store bound event handlers for later removal
     this.handleProductView = (e) =>
-      campaign.call(this, "1", "product-view", e.detail, false);
+      campaign.call(
+        this,
+        EVENT_IDS.PRODUCT_VIEW,
+        "product-view",
+        e.detail,
+        false
+      );
     this.handleAddToCart = (e) =>
-      campaign.call(this, "2", "add-remove-cart", e.detail, false);
+      campaign.call(
+        this,
+        EVENT_IDS.ADD_TO_CART,
+        "add-remove-cart",
+        e.detail,
+        false
+      );
     this.handleRemoveFromCart = (e) =>
-      campaign.call(this, "3", "add-remove-cart", e.detail, false);
+      campaign.call(
+        this,
+        EVENT_IDS.REMOVE_FROM_CART,
+        "add-remove-cart",
+        e.detail,
+        false
+      );
     this.handleStartCheckout = () =>
-      campaign.call(this, "4", "start-checkout", {}, false);
-    this.handlePurchaseEvent = (e) => this.handlePurchase(e.detail, false);
+      campaign.call(
+        this,
+        EVENT_IDS.START_CHECKOUT,
+        "start-checkout",
+        {},
+        false
+      );
+    this.handlePurchaseEvent = (e) =>
+      campaign.call(this, EVENT_IDS.PURCHASE, "purchase", e.detail, false);
 
     document.addEventListener("product-view", this.handleProductView);
     document.addEventListener("add-to-cart", this.handleAddToCart);
@@ -150,7 +176,6 @@ class ZiadahPlugin extends HTMLElement {
     document.addEventListener("start-checkout", this.handleStartCheckout);
     document.addEventListener("purchase", this.handlePurchaseEvent);
   }
-
   async showPopup(campaignData) {
     try {
       console.log("Showing popup for campaign:", campaignData);
@@ -282,7 +307,12 @@ class ZiadahPlugin extends HTMLElement {
       this.updatePurchaseUI(analyticsData);
 
       // Trigger purchase campaigns
-      await campaign.call(this, "5", "post-purchase", analyticsData);
+      await campaign.call(
+        this,
+        EVENT_IDS.PURCHASE,
+        "post-purchase",
+        analyticsData
+      );
     } catch (error) {
       console.error("Error handling purchase:", error);
       notifyUser(t("error_processing_purchase"), true);

@@ -15,8 +15,17 @@ export class ZidAdapter extends AbstractEcommerceAdapter {
   constructor() {
     super();
     this.zid = window.zid;
+    // if (!this.zid || !this.zid.store || !this.zid.store.cart) {
+    //   console.error("Zid SDK is not initialized properly.");
+    //   throw new Error("Zid SDK is not available.");
+    // }
     // this.storeId = window.store_uuid || 'test-store-id';
+    if (!window.store_uuid) {
+      console.error("store_uuid is not defined. Please set window.store_uuid.");
+      throw new Error("store_uuid is required.");
+    }
     this.storeId = window.store_uuid;
+
     this.language = document.documentElement.lang || "en";
     this.settingsInitialized = false;
     this.cachedSettings = null;
@@ -59,6 +68,12 @@ export class ZidAdapter extends AbstractEcommerceAdapter {
   async addToCart(productData) {
     try {
       const response = await this.zid.store.cart.addProduct(productData);
+
+      if (!response || !response.data) {
+        console.error("Unexpected response from addToCart:", response);
+        throw new Error("Invalid response from addToCart");
+      }
+
       return response.data;
     } catch (error) {
       console.error("Error adding to cart:", error);
@@ -69,6 +84,12 @@ export class ZidAdapter extends AbstractEcommerceAdapter {
   async removeFromCart(productId) {
     try {
       const response = await this.zid.store.cart.removeProduct(productId);
+
+      if (!response || !response.data) {
+        console.error("Unexpected response from removeFromCart:", response);
+        throw new Error("Invalid response from removeFromCart");
+      }
+
       return response.data;
     } catch (error) {
       console.error("Error removing from cart:", error);
@@ -94,16 +115,29 @@ export class ZidAdapter extends AbstractEcommerceAdapter {
 
   async getCampaignData(campaignId, eventId, actionProducts) {
     try {
+      const requestBody = {
+        campaign_id: campaignId,
+        event_id: eventId,
+        store_id: this.storeId,
+        action_product_ids: actionProducts,
+      };
+
+      console.log("Sending request to getCampaignData with body:", requestBody);
+
       const response = await fetch(API_ENDPOINTS.CAMPAIGN, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          campaign_id: campaignId,
-          event_id: eventId,
-          store_id: this.storeId,
-          action_product_ids: actionProducts,
-        }),
+        body: JSON.stringify(requestBody),
       });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(
+          `Server responded with status ${response.status}: ${errorText}`
+        );
+        throw new Error(`Server error ${response.status}: ${errorText}`);
+      }
+
       return await response.json();
     } catch (error) {
       console.error("Error getting campaign data:", error);
@@ -124,6 +158,15 @@ export class ZidAdapter extends AbstractEcommerceAdapter {
           quantity,
         }),
       });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(
+          `Server responded with status ${response.status}: ${errorText}`
+        );
+        throw new Error(`Server error ${response.status}: ${errorText}`);
+      }
+
       return await response.json();
     } catch (error) {
       console.error("Error sending click data:", error);
@@ -141,6 +184,15 @@ export class ZidAdapter extends AbstractEcommerceAdapter {
           products: products,
         }),
       });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(
+          `Server responded with status ${response.status}: ${errorText}`
+        );
+        throw new Error(`Server error ${response.status}: ${errorText}`);
+      }
+
       return await response.json();
     } catch (error) {
       console.error("Error sending conversion data:", error);
@@ -208,6 +260,15 @@ export class ZidAdapter extends AbstractEcommerceAdapter {
           names: selectedAttributes,
         }),
       });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(
+          `Server responded with status ${response.status}: ${errorText}`
+        );
+        throw new Error(`Server error ${response.status}: ${errorText}`);
+      }
+
       return await response.json();
     } catch (error) {
       console.error("Error fetching product variants:", error);

@@ -1,31 +1,28 @@
+// campaign.js
 import { getState, setState } from "./store";
-import { getCampaignData, fetchCampaigns } from "./api";
 import { t, notifyUser, logError } from "./utils";
 
 export async function campaign(
   eventID,
   eventName,
-  eventCallback,
+  eventData,
   restartWithLower = false
 ) {
   const state = getState();
-
-  // Check if a campaign is already active
   if (state.campaignActive && !restartWithLower) {
     console.log("Campaign is already active, skipping campaign");
     return;
   }
 
-  // Set campaignActive to true to indicate a campaign is running
   setState({ campaignActive: true });
 
   try {
-    console.log("Event callback:", JSON.stringify(eventCallback, null, 2));
+    console.log("Event data:", JSON.stringify(eventData, null, 2));
 
     setState({
       lastEventID: eventID,
       lastEventName: eventName,
-      lastEventCallback: eventCallback,
+      lastEventData: eventData,
     });
 
     const adapter = state.adapter;
@@ -33,14 +30,14 @@ export async function campaign(
     console.log("Current adapter:", adapter);
 
     if (!restartWithLower) {
-      const data = await fetchCampaigns(eventID, adapter);
+      const data = await adapter.fetchCampaigns(eventID);
 
       console.log("Fetched campaigns data:", data);
 
       if (data.is_success) {
         let highestPriorityCampaign = filterCampaignsByTriggerProductId(
           data.data,
-          eventCallback?.id,
+          eventData?.id,
           eventName
         );
 
@@ -54,11 +51,16 @@ export async function campaign(
         const result = await adapter.getCampaignData(
           highestPriorityCampaign.id,
           eventID,
-          highestPriorityCampaign.action_products,
-          adapter
+          highestPriorityCampaign.action_products
         );
 
         console.log("Campaign data:", result);
+
+        if (!result.is_success) {
+          console.error("Failed to get campaign data:", result.message);
+          notifyUser(t("campaign_error"), true);
+          return;
+        }
 
         setState({
           currentCampaignID: result.id,
@@ -69,6 +71,9 @@ export async function campaign(
         });
 
         await showCampaignPopup(result);
+      } else {
+        console.log("API did not return success");
+        notifyUser(t("no_campaigns_available"), false);
       }
     } else {
       const lowerCampaign = state.lowerCampaign;
@@ -77,11 +82,10 @@ export async function campaign(
         return;
       }
 
-      const result = await getCampaignData(
+      const result = await adapter.getCampaignData(
         lowerCampaign.id,
         eventID,
-        lowerCampaign.action_products,
-        adapter
+        lowerCampaign.action_products
       );
 
       setState({ currentCampaignID: result.id });
@@ -90,10 +94,9 @@ export async function campaign(
     }
   } catch (error) {
     console.error("Error in campaign:", error);
-    logError(error, "Operation Context");
+    logError(error, "Campaign Execution");
     notifyUser(t("campaign_error"), true);
   } finally {
-    // Reset campaignActive to false when campaign ends
     setState({ campaignActive: false });
   }
 }
@@ -131,13 +134,15 @@ function filterCampaignsByTriggerProductId(
 async function showCampaignPopup(campaignData) {
   console.log("showCampaignPopup called with data:", campaignData);
 
-  if (!campaignData) {
-    console.error("No campaign data to show");
+  if (!campaignData || !campaignData.is_success) {
+    console.error("Invalid campaign data");
+    notifyUser(t("campaign_error"), true);
     return;
   }
 
   const state = getState();
   console.log("Current state:", state);
+
   const PopupComponent = state.popupFactory.createPopup(state.popupType);
   console.log("Created PopupComponent:", PopupComponent);
 
@@ -159,7 +164,7 @@ async function showCampaignPopup(campaignData) {
       campaignData.alternative_products,
       campaignData.is_alternative_product_enabled,
       state.lastEventName === "add-remove-cart"
-        ? state.lastEventCallback?.id
+        ? state.lastEventData?.id
         : null,
       campaignData.campaign_settings
     );
@@ -168,14 +173,6 @@ async function showCampaignPopup(campaignData) {
 
 export function restartCampaign() {
   const state = getState();
-  campaign(
-    this,
-    state.lastEventID,
-    state.lastEventName,
-    state.lastEventCallback,
-    true
-  );
+  campaign(state.lastEventID, state.lastEventName, state.lastEventData, true);
   setState({ isRestarted: true });
 }
-
-export default campaign;
