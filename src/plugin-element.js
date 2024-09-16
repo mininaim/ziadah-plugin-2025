@@ -47,17 +47,6 @@ class ZiadahPlugin extends HTMLElement {
     console.log("Initializing adapter");
     const adapter = this.adapter;
     try {
-      // if (typeof adapter.getLanguage === "function") {
-      //   const language = adapter.getLanguage();
-      //   console.log(`Setting language to: ${language}`);
-      //   setState({ language });
-      // } else {
-      //   console.warn(
-      //     "getLanguage method not found on adapter, defaulting to 'en'"
-      //   );
-      //   setState({ language: "en" });
-      // }
-
       const state = getState();
       console.log(`Using language: ${state.language}`);
 
@@ -74,6 +63,38 @@ class ZiadahPlugin extends HTMLElement {
       setState({ language: "en" });
     }
   }
+
+  // async initializeAdapter() {
+  //   console.log("Initializing adapter");
+  //   const adapter = this.adapter;
+  //   try {
+  //     // if (typeof adapter.getLanguage === "function") {
+  //     //   const language = adapter.getLanguage();
+  //     //   console.log(`Setting language to: ${language}`);
+  //     //   setState({ language });
+  //     // } else {
+  //     //   console.warn(
+  //     //     "getLanguage method not found on adapter, defaulting to 'en'"
+  //     //   );
+  //     //   setState({ language: "en" });
+  //     // }
+
+  //     const state = getState();
+  //     console.log(`Using language: ${state.language}`);
+
+  //     if (!adapter.settingsInitialized) {
+  //       console.log("Fetching adapter settings");
+  //       await adapter.fetchSettings();
+  //       adapter.settingsInitialized = true;
+  //       console.log("Adapter settings initialized");
+  //     } else {
+  //       console.log("Adapter settings already initialized");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error initializing adapter:", error);
+  //     setState({ language: "en" });
+  //   }
+  // }
 
   initPopupFactory() {
     if (!popupFactoryInstance) {

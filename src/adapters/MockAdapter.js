@@ -178,19 +178,21 @@ export class MockAdapter extends AbstractEcommerceAdapter {
     return { success: true };
   }
 
-  async fetchSettings(language) {
+  async fetchSettings() {
+    console.log("MockAdapter.fetchSettings called");
     if (this.settingsInitialized) {
       console.log("Returning cached settings");
       return this.cachedSettings;
     }
 
-    console.log(`MockAdapter.fetchSettings called with language: ${language}`);
+    await this.simulateDelay();
+
     this.settingsInitialized = true;
     this.cachedSettings = {
       ...mockSettings,
       language: {
         ...mockSettings.language,
-        current: language,
+        current: this.language,
       },
     };
     return this.cachedSettings;
