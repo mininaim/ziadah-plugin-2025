@@ -123,7 +123,7 @@ export class ModalPopup extends AbstractPopup {
       loadRubikFont();
     }
     return `
-      .ziadah-modal {
+ .ziadah-modal {
         font-family: ${fontFamily};
         display: none;
         position: fixed;
@@ -159,21 +159,33 @@ export class ModalPopup extends AbstractPopup {
       }
       .products-container {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        gap: 20px;
       }
       .product {
         display: flex;
+        flex-direction: column;
         align-items: center;
+        width: calc(33.33% - 20px);
+        min-width: 200px;
         margin-bottom: 20px;
-        border-bottom: 1px solid #ddd;
-        padding-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       }
       .product-image {
-        width: 100px;
-        height: 100px;
+        width: 100%;
+        height: 200px;
         object-fit: cover;
-        margin-right: 20px;
         border-radius: 8px;
+        margin-bottom: 10px;
+      }
+      .product-details {
+        text-align: center;
+        width: 100%;
       }
       .product h3 {
         margin: 0 0 10px 0;
@@ -190,6 +202,8 @@ export class ModalPopup extends AbstractPopup {
         border-radius: 4px;
         cursor: pointer;
         margin-top: 10px;
+        font-family: ${fontFamily};
+        width: 100%;
       }
       .add-to-cart:disabled {
         background-color: #ccc;

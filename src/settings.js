@@ -8,7 +8,7 @@ const defaultSettings = {
   modalBackground: "#ffffff",
   mainColor: "#4CAF50",
   subColor: "#2196F3",
-  fontFamily: "Rubik, sans-serif",
+  fontFamily: "Arial, sans-serif",
   fontSize: "16px",
   buttonRadius: "5px",
   animationDuration: "0.3s",
