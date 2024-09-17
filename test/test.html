@@ -27,7 +27,7 @@
         <button id="triggerStartCheckout" class="btn btn-info mb-2">Start Checkout</button>
         <button id="triggerPurchase" class="btn btn-dark mb-2">Purchase</button>
 
-        <button id="test-checkout-campaign">Test Checkout Campaign (Event ID 1)</button>
+ 
     </div>
 
     <h2>Navigation Simulation</h2>
@@ -52,8 +52,8 @@
                             cart: { 
                                 status: 'completed', 
                                 items: [
-                                    { product_id: '413d8d37-73fd-4b55-a1f9-814ffa92f9ef', quantity: 1 },
-                                    { product_id: '052b288f-2d2c-4456-b2b9-f8265c552d1a', quantity: 2 }
+                                    { product_id: '5bc4f24b-6c61-47ae-b755-ffb01fdfa645', quantity: 1 },
+                                    { product_id: '5bc4f24b-6c61-47ae-b755-ffb01fdfa645', quantity: 2 }
                                 ] 
                             } 
                         }
@@ -64,69 +64,6 @@
             }
         };
 
-        // Mock backend API response
-        window.originalFetch = window.fetch;
-        window.fetch = (url, options) => {
-            console.log("Mocked fetch called with URL:", url);
-            if (url.includes("/store-events")) {
-                return Promise.resolve({
-                    ok: true,
-                    json: () => Promise.resolve({
-                        is_success: true,
-                        status_code: 200,
-                        message: '',
-                        data: [
-                            {
-                                id: 617,
-                                title: 'Mock Campaign',
-                                trigger_product_type: { value_string: 'all products' },
-                                action_products: [
-                                    { 
-                                        uuid: '413d8d37-73fd-4b55-a1f9-814ffa92f9ef', 
-                                        name: { en: 'Mock Product 1' }, 
-                                        quantity: 10,
-                                        price: 100,
-                                        currency: 'USD'
-                                    }
-                                ],
-                                coupon: { code: 'MOCKCOUPON' },
-                                is_product_coupon_enabled: true,
-                                event: { id: 2 }, // Assuming 2 is for 'add-to-cart'
-                                card: {
-                                    title: { en: 'Special Offer!' },
-                                    description: { en: 'Don\'t miss this amazing deal!' }
-                                },
-                                status: { value: 1 },
-                                priority: 1
-                            },
-                        ]
-                    })
-                });
-            } else if (url.includes("/store-front/plugin-settings")) {
-                return Promise.resolve({
-                    ok: true,
-                    json: () => Promise.resolve({
-                        enabled: true,
-                        display_type: "popup",
-                        trigger_type: "exit_intent",
-                        delay: 5000,
-                        frequency: "once_per_session",
-                        modalRadius: "10px",
-                        modalBackground: "#ffffff",
-                        mainColor: "#4CAF50",
-                        subColor: "#2196F3",
-                        fontFamily: "Arial, sans-serif",
-                        fontSize: "16px",
-                        buttonRadius: "5px",
-                        animationDuration: "0.3s",
-                        maxWidth: "600px",
-                        customCSS: "",
-                        userCSS: ""
-                    })
-                });
-            }
-            return window.originalFetch(url, options);
-        };
     </script>
 
     <script src="../dist/index.min.js"></script>
@@ -145,8 +82,10 @@
             dispatchEvent('add-to-cart', { id: product1, quantity: 1 }));
         document.getElementById('triggerRemoveFromCart').addEventListener('click', () => 
             dispatchEvent('remove-from-cart', { id: product1 }));
-        document.getElementById('triggerProductPageLeave').addEventListener('click', () => 
-            dispatchEvent('product-page-leave', { id: product1 }));
+            document.getElementById('triggerProductPageLeave').addEventListener('click', () => {
+                console.log("Product Page Leave clicked");
+                dispatchEvent('product-page-leave', { id: product1 });
+            });
         document.getElementById('triggerStartCheckout').addEventListener('click', () => 
             dispatchEvent('start-checkout'));
         document.getElementById('triggerPurchase').addEventListener('click', () => 
@@ -179,43 +118,7 @@
         });
     </script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialize the plugin
-            const ziadahPlugin = document.createElement('ziadah-plugin');
-            document.body.appendChild(ziadahPlugin);
 
-            // Set up the test button
-            document.getElementById('test-checkout-campaign').addEventListener('click', () => {
-                console.log('Triggering checkout campaign test');
-                const checkoutEvent = new CustomEvent('start-checkout', {
-                    detail: { 
-                        products: [
-                            { product_id: product1, quantity: 1 }, 
-                            { product_id: product2, quantity: 2 }
-                        ],
-
-                        total_price: 100,
-                        currency: 'USD',
-                        shipping_price: 10,
-                        tax_price: 5,
-                        discount_price: 15,
-                        coupon_code: 'DISCOUNT10',
-                        customer_email: 'test@example.com',
-                        customer_phone: '1234567890',
-                        customer_name: 'John Doe',
-                        customer_address: '123 Main St, Anytown, USA',
-                        customer_city: 'Anytown',
-                        customer_state: 'CA',
-                        customer_zip: '12345',
-                        customer_country: 'USA'
-
-                    }
-                });
-                document.dispatchEvent(checkoutEvent);
-            });
-        });
-    </script>
 
 
 </body>

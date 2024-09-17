@@ -52,13 +52,13 @@ export async function campaign(
         const result = await adapter.getCampaignData(
           highestPriorityCampaign.id,
           eventID,
-          highestPriorityCampaign.action_products.map((p) => p.uuid)
+          highestPriorityCampaign.action_products
         );
 
         // console.log("Campaign data:", result);
 
-        if (!result) {
-          console.error("Failed to get campaign data");
+        if (!result || !result.is_success) {
+          console.error("Failed to get campaign data:", result);
           notifyUser(t("campaign_error"), true);
           return;
         }

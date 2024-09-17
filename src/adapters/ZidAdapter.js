@@ -136,11 +136,21 @@ export class ZidAdapter extends AbstractEcommerceAdapter {
 
   async getCampaignData(campaignId, eventId, actionProducts) {
     try {
+      // const actionProductIds = Array.isArray(actionProducts)
+      //   ? actionProducts
+      //   : actionProducts.map((p) => p.uuid || p.id);
+      const mappedActionProducts = actionProducts.map((product) => ({
+        id: product.id,
+        child_ids: product.attributes
+          .map((attr) => attr.presets.map((preset) => preset.id))
+          .flat(),
+      }));
+
       const requestBody = {
         campaign_id: campaignId,
         event_id: eventId,
         store_id: this.storeId,
-        action_product_ids: actionProducts,
+        action_product_ids: mappedActionProducts,
       };
 
       console.log("Sending request to getCampaignData with body:", requestBody);
@@ -153,6 +163,10 @@ export class ZidAdapter extends AbstractEcommerceAdapter {
 
       const result = await response.json();
       if (!response.ok) {
+        console.error(
+          `Server responded with status ${response.status}:`,
+          result
+        );
         throw new Error(
           `Server error ${response.status}: ${JSON.stringify(result)}`
         );
@@ -162,7 +176,11 @@ export class ZidAdapter extends AbstractEcommerceAdapter {
       return result;
     } catch (error) {
       console.error("Error getting campaign data:", error);
-      throw error;
+      return {
+        is_success: false,
+        message: "Failed to fetch campaign data",
+        data: null,
+      };
     }
   }
 

@@ -1,3 +1,5 @@
+// outdated
+
 import { AbstractPopup } from "./AbstractPopup";
 import { parseCustomCSS } from "../../utils/cssParser";
 import { sanitizeCSS } from "../../utils/cssSanitizer";

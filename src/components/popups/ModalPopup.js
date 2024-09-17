@@ -117,7 +117,7 @@ export class ModalPopup extends AbstractPopup {
 
   getDefaultStyles(fontFamily) {
     return `
- .ziadah-modal {
+      .ziadah-modal {
         font-family: ${fontFamily};
         display: none;
         position: fixed;
