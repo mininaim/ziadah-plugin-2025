@@ -45,8 +45,13 @@ function initZiadahPlugin() {
     return getState().pluginActive;
   };
 
+  function getZiadahPlugin() {
+    return ziadahPlugin;
+  }
+
   window.ZiadahPlugin = window.ZiadahPlugin || {};
   window.ZiadahPlugin.notifyUser = notifyUser;
+  window.ZiadahPlugin.getZiadahPlugin = getZiadahPlugin;
 
   isZiadahInitialized = true;
   console.log("Ziadah plugin initialized successfully");

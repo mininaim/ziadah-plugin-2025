@@ -22,6 +22,10 @@ export class MockAdapter extends AbstractEcommerceAdapter {
 
     //console.log("Mockup data loaded:", JSON.stringify(this.campaigns, null, 2));
     //console.log("Mock cart:", JSON.stringify(mockCart, null, 2));
+
+    console.log(
+      `MockAdapter initialized with storeId: ${this.storeId}, language: ${this.language}`
+    );
   }
 
   async simulateDelay() {
@@ -88,7 +92,7 @@ export class MockAdapter extends AbstractEcommerceAdapter {
 
   async fetchCampaigns(eventId, storeId, language) {
     console.log(
-      `MockAdapter.fetchCampaigns called with event ID: ${eventId}, store ID: ${storeId}, language: ${language}`
+      `MockAdapter.fetchCampaigns called with event ID: ${eventId}, store ID: ${this.storeId}, language: ${this.language}`
     );
     console.log("Available campaigns:", this.campaigns.data.length);
 
@@ -126,7 +130,12 @@ export class MockAdapter extends AbstractEcommerceAdapter {
     language
   ) {
     console.log(
-      `MockAdapter.getCampaignData called with campaign ID: ${campaignId}, event ID: ${eventId}, store ID: ${storeId}, language: ${language}`
+      `MockAdapter.getCampaignData called:
+      campaignId: ${campaignId},
+      eventId: ${eventId},
+      actionProducts: ${actionProducts},
+      storeId: ${this.storeId},
+      language: ${this.language}`
     );
 
     await this.simulateDelay();
@@ -139,22 +148,16 @@ export class MockAdapter extends AbstractEcommerceAdapter {
     if (campaign) {
       const result = {
         ...campaign,
-        title: campaign.title[language] || campaign.title.en,
+        title: campaign.title[this.language] || campaign.title.en,
         description: campaign.description
-          ? campaign.description[language] || campaign.description.en
+          ? campaign.description[this.language] || campaign.description.en
           : undefined,
         action_products: campaign.action_products
           .filter((product) => actionProducts.includes(product.uuid))
-          .map((product) => {
-            console.log(
-              `Product name for ${language}:`,
-              product.name[language]
-            );
-            return {
-              ...product,
-              name: product.name[language] || product.name.en,
-            };
-          }),
+          .map((product) => ({
+            ...product,
+            name: product.name[this.language] || product.name.en,
+          })),
       };
       console.log("Returning localized campaign data:", result);
       return result;

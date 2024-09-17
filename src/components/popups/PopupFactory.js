@@ -12,7 +12,7 @@ export class PopupFactory {
 
   async createPopup(type, campaignData, settings) {
     console.log("Creating popup of type:", type);
-    console.log("Campaign data:", JSON.stringify(campaignData, null, 2));
+    //console.log("Campaign data:", JSON.stringify(campaignData, null, 2));
 
     // Validate campaignData
     if (
