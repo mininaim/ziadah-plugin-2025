@@ -119,11 +119,12 @@ export class ModalPopup extends AbstractPopup {
   }
 
   getDefaultStyles() {
-    const fontFamily = getStoreFontFamily();
-    // const fontFamily = getStoreFontFamily();
-    // if (fontFamily.includes("rubik")) {
-    //   loadRubikFont();
-    // }
+    let fontFamily = getStoreFontFamily();
+
+    if (!fontFamily) {
+      fontFamily = "Rubik, sans-serif";
+      loadRubikFont();
+    }
 
     return `
  .ziadah-modal {
