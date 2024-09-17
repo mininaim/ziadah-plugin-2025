@@ -203,7 +203,6 @@ export class MockAdapter extends AbstractEcommerceAdapter {
     }
 
     await this.simulateDelay();
-
     this.settingsInitialized = true;
     this.cachedSettings = {
       ...mockSettings,
@@ -212,6 +211,7 @@ export class MockAdapter extends AbstractEcommerceAdapter {
         current: this.language,
       },
     };
+    console.log("Settings initialized");
     return this.cachedSettings;
   }
 

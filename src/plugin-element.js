@@ -44,18 +44,18 @@ class ZiadahPlugin extends HTMLElement {
     }
     return false;
   }
-
   async initializeAdapter() {
     console.log("Initializing adapter");
     const adapter = this.adapter;
     try {
       const state = getState();
       console.log(`Using language: ${state.language}`);
+      adapter.language = state.language;
 
       if (!adapter.settingsInitialized) {
         console.log("Fetching adapter settings");
-        await adapter.fetchSettings();
-        adapter.settingsInitialized = true;
+        const settings = await adapter.fetchSettings();
+        setState({ settings });
         console.log("Adapter settings initialized");
       } else {
         console.log("Adapter settings already initialized");
@@ -136,7 +136,10 @@ class ZiadahPlugin extends HTMLElement {
   }
 
   async initializePlugin() {
-    await initializeSettings();
+    const settings = getState().settings;
+    if (!settings) {
+      await initializeSettings();
+    }
 
     const currentPath = new URL(window.location.href).pathname;
     const lastPageUrl = sessionStorage.getItem("last_page_url") || "";
@@ -150,14 +153,9 @@ class ZiadahPlugin extends HTMLElement {
       lastPageUrl.includes("/products/") &&
       !currentPath.includes("/products/")
     ) {
-      await campaign.call(
-        this,
-        EVENT_IDS.PRODUCT_PAGE_LEAVE,
-        "product-page-leave",
-        {
-          id: sessionStorage.getItem("last_product_id"),
-        }
-      );
+      await campaign.call(this, EVENT_IDS.PRODUCT_VIEW, "product-page-leave", {
+        id: sessionStorage.getItem("last_product_id"),
+      });
     } else if (
       currentPath.includes("/order-completed/") ||
       currentPath.includes("/orders/")

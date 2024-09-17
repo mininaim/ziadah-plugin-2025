@@ -1,3 +1,5 @@
+// src/components/popups/PopupFactory.js
+
 import { ModalPopup } from "./ModalPopup.js";
 import { OffcanvasPopup } from "./OffcanvasPopup.js";
 import { sanitizeCSS } from "../../utils/cssSanitizer.js";
@@ -8,11 +10,20 @@ export class PopupFactory {
     this.shadowRoot = shadowRoot;
     this.adapter = adapter;
     this.popupInstances = {}; // Cached popups by type
+    this.fontFamily = getStoreFontFamily();
+    this.fontLoaded = false;
+  }
+
+  async loadFontIfNeeded() {
+    if (!this.fontLoaded && this.fontFamily.includes("Rubik")) {
+      loadRubikFont();
+      await new Promise((resolve) => setTimeout(resolve, 100)); // Allow time for the font to load
+      this.fontLoaded = true;
+    }
   }
 
   async createPopup(type, campaignData, settings) {
     console.log("Creating popup of type:", type);
-    //console.log("Campaign data:", JSON.stringify(campaignData, null, 2));
 
     // Validate campaignData
     if (
@@ -30,12 +41,8 @@ export class PopupFactory {
       return this.popupInstances[type];
     }
 
-    // Load Rubik font if required
-    const fontFamily = getStoreFontFamily();
-    if (fontFamily.includes("Rubik")) {
-      loadRubikFont();
-      await new Promise((resolve) => setTimeout(resolve, 100)); // Allow time for the font to load
-    }
+    // Load font if needed
+    await this.loadFontIfNeeded();
 
     let PopupClass;
     switch (type) {
@@ -59,6 +66,7 @@ export class PopupFactory {
     await popupInstance.create(campaignData, {
       ...settings,
       css: sanitizedCSS,
+      fontFamily: this.fontFamily,
     });
 
     // Cache the instance for future reuse

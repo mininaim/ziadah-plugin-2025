@@ -17,10 +17,7 @@ export class ModalPopup extends AbstractPopup {
     modalElement.classList.add("ziadah-popup", "ziadah-modal");
 
     const styles = document.createElement("style");
-    styles.textContent = `
-      ${this.getDefaultStyles()}
-      ${sanitizeCSS(customStyles)}
-    `;
+    styles.textContent = this.getDefaultStyles(settings.fontFamily);
 
     modalElement.innerHTML = '<div class="modal-content"></div>';
 
@@ -118,11 +115,7 @@ export class ModalPopup extends AbstractPopup {
       .catch((err) => console.error("Failed to copy coupon: ", err));
   }
 
-  getDefaultStyles() {
-    const fontFamily = getStoreFontFamily();
-    if (fontFamily.includes("Rubik")) {
-      loadRubikFont();
-    }
+  getDefaultStyles(fontFamily) {
     return `
  .ziadah-modal {
         font-family: ${fontFamily};
