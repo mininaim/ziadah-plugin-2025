@@ -168,25 +168,37 @@ function filterCampaignsByTriggerProductId(
 }
 async function showCampaignPopup(campaignData) {
   console.log("Showing campaign popup with data:", campaignData);
-  // console.log(
-  //   "showCampaignPopup called with data:",
-  //   JSON.stringify(campaignData, null, 2)
-  // );
 
-  if (!campaignData || !campaignData.id) {
+  // Extract the actual campaign data from the response
+  const actualCampaignData = campaignData.data;
+
+  if (!actualCampaignData || !actualCampaignData.id) {
     console.error("Invalid campaign data");
     notifyUser(t("campaign_error"), true);
     return;
   }
-
   const state = getState();
   console.log("Current state:", state);
+  if (!state) {
+    console.error("State is undefined");
+    notifyUser(t("campaign_error"), true);
+    return;
+  }
+  console.log("Current settings:", state.settings);
 
   try {
-    const popupType = campaignData.style?.title?.en?.toLowerCase() || "modal";
+    const popupType =
+      actualCampaignData.style?.title?.en?.toLowerCase() || "modal";
+
+    if (!state.popupFactory) {
+      console.error("PopupFactory is not initialized in the state");
+      notifyUser(t("campaign_error"), true);
+      return;
+    }
+
     const PopupComponent = await state.popupFactory.createPopup(
       popupType,
-      campaignData,
+      actualCampaignData,
       state.settings
     );
 
@@ -195,20 +207,20 @@ async function showCampaignPopup(campaignData) {
     }
 
     await PopupComponent.showProducts(
-      campaignData.action_products || [],
-      campaignData.trigger_products || [],
+      actualCampaignData.action_products || [],
+      actualCampaignData.trigger_products || [],
       {
-        has_coupon: campaignData.is_product_coupon_enabled,
-        coupon: campaignData.coupon,
+        has_coupon: actualCampaignData.is_product_coupon_enabled,
+        coupon: actualCampaignData.coupon,
       },
-      campaignData.type?.id,
-      campaignData.card,
-      campaignData.alternative_products,
-      campaignData.is_alternative_product_enabled,
+      actualCampaignData.type?.id,
+      actualCampaignData.card,
+      actualCampaignData.alternative_products,
+      actualCampaignData.is_alternative_product_enabled,
       state.lastEventName === "add-remove-cart"
         ? state.lastEventData?.id
         : null,
-      campaignData.campaign_settings
+      actualCampaignData.campaign_settings
     );
   } catch (error) {
     console.error("Error showing popup:", error);

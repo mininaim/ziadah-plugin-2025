@@ -54,4 +54,8 @@ export class AbstractEcommerceAdapter {
   async handleOrderPage() {
     throw new Error("handleOrderPage method must be implemented");
   }
+  // addAllProducts
+  async addAllProducts(products, type) {
+    throw new Error("addAllProducts method must be implemented");
+  }
 }

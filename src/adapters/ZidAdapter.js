@@ -1,6 +1,7 @@
 import { AbstractEcommerceAdapter } from "./AbstractEcommerceAdapter";
 import { baseURL } from "../config";
 import { cachedFetch, clearCache } from "../utils";
+import { getState } from "../store";
 
 const API_ENDPOINTS = {
   STORE_EVENTS: `${baseURL}/zid/store-events`,
@@ -30,15 +31,20 @@ export class ZidAdapter extends AbstractEcommerceAdapter {
     console.log("ZidAdapter initialized with language:", this.language);
     this.settingsInitialized = false;
     this.cachedSettings = null;
+    this.cachedLanguage = null;
   }
-
   getLanguage() {
+    if (this.cachedLanguage) {
+      return this.cachedLanguage;
+    }
     const state = getState();
-    const language = state.language || this.language;
-    console.log("getLanguage called, returning:", language);
-    return language;
+    this.cachedLanguage = state.language || this.language;
+    console.log("getLanguage called, returning:", this.cachedLanguage);
+    return this.cachedLanguage;
   }
-
+  clearLanguageCache() {
+    this.cachedLanguage = null;
+  }
   setLanguage(lang) {
     this.language = lang;
     console.log(`ZidAdapter: Language set to ${lang}`);
@@ -95,6 +101,31 @@ export class ZidAdapter extends AbstractEcommerceAdapter {
       return response.data;
     } catch (error) {
       console.error("Error adding to cart:", error);
+      throw error;
+    }
+  }
+
+  // implement add to all card in a loop of products
+  async addAllProducts(products, type) {
+    try {
+      const results = [];
+      for (const product of products) {
+        const productData = {
+          id: product.id,
+          quantity: product.quantity || 1,
+
+          //type: type
+        };
+        const response = await this.zid.store.cart.addProduct(productData);
+        if (!response || !response.data) {
+          console.error("Unexpected response from addToCart:", response);
+          throw new Error("Invalid response from addToCart");
+        }
+        results.push(response.data);
+      }
+      return results;
+    } catch (error) {
+      console.error("Error adding all products to cart:", error);
       throw error;
     }
   }

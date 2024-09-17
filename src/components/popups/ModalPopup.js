@@ -57,6 +57,7 @@ export class ModalPopup extends AbstractPopup {
       description: card?.description || { en: "No Description" },
       action_products: actionProducts,
       coupon: options?.coupon,
+      type: campaignTypeId,
     };
 
     this.updateContent(campaignData);
@@ -253,14 +254,17 @@ export class ModalPopup extends AbstractPopup {
       <span class="close">&times;</span>
       <h2>${title}</h2>
       <p>${description}</p>
-      <div class="products-container">
-        ${this.generateProductList(actionProducts)}
-      </div>
-      ${this.generateCouponSection(coupon)}
+    <div class="products-container">
+      ${this.generateProductList(
+        campaignData.action_products,
+        campaignData.type
+      )}
+    </div>
+    ${this.generateCouponSection(campaignData.coupon)}
     `;
   }
 
-  generateProductList(products) {
+  generateProductList(products, type) {
     if (!Array.isArray(products) || products.length === 0) {
       return `<p>${t("no_products_available")}</p>`;
     }
@@ -311,6 +315,58 @@ export class ModalPopup extends AbstractPopup {
           quantityInfo = t("out_of_stock");
         }
 
+        // Determine button text and class based on product type
+        let buttonText;
+        let buttonClass = "add-to-cart";
+        if (type === 1) {
+          buttonText = t("replace");
+          buttonClass += " replace-product";
+        } else {
+          buttonText = t("add_to_cart");
+          buttonClass += " add-to-cart";
+        }
+
+        // price
+        let priceDisplay = "N/A";
+        if (product.price !== undefined) {
+          priceDisplay = `${product.price}`;
+          if (product.currency) {
+            priceDisplay += ` ${product.currency}`;
+          }
+        }
+
+        // Generate attribute selectors if available
+        let attributeSelectors = "";
+        if (product.attributes && product.attributes.length > 0) {
+          attributeSelectors = product.attributes
+            .map(
+              (attribute) => `
+       <div class="attribute-selector">
+         <label for="${this.escapeHtml(product.uuid)}-${attribute.id}">
+           ${this.escapeHtml(attribute.name[this.getLanguage()])}:
+         </label>
+         <select 
+           id="${this.escapeHtml(product.uuid)}-${attribute.id}" 
+           class="product-attribute" 
+           data-product-id="${this.escapeHtml(product.uuid)}" 
+           data-attribute-id="${attribute.id}"
+         >
+           ${attribute.presets
+             .map(
+               (preset) => `
+             <option value="${this.escapeHtml(preset.id)}">
+               ${this.escapeHtml(preset.name[this.getLanguage()])}
+             </option>
+           `
+             )
+             .join("")}
+         </select>
+       </div>
+     `
+            )
+            .join("");
+        }
+
         return `
           <div class="product">
             ${
@@ -322,16 +378,13 @@ export class ModalPopup extends AbstractPopup {
             }
             <div class="product-details">
               <h3>${this.escapeHtml(name)}</h3>
-              <p>${
-                product.price
-                  ? this.formatPrice(product.price, product.currency)
-                  : "N/A"
-              }</p>
+               <p>${priceDisplay}</p>
               <p>${quantityInfo}</p>
-              <button class="add-to-cart" data-product-id="${this.escapeHtml(
-                product.uuid || ""
-              )}" ${product.quantity === 0 ? "disabled" : ""}>
-                ${t("add_to_cart")}
+              ${attributeSelectors}
+              <button class="${buttonClass}" data-product-id="${this.escapeHtml(
+          product.uuid || ""
+        )}" ${product.quantity === 0 ? "disabled" : ""}>
+                ${buttonText}
               </button>
             </div>
           </div>
@@ -407,5 +460,80 @@ export class ModalPopup extends AbstractPopup {
         this.handleCouponCopy(couponCode);
       }
     });
+
+    this.popupElement.addEventListener("change", (e) => {
+      if (e.target.classList.contains("product-attribute")) {
+        const productId = e.target.dataset.productId;
+        const attributeId = e.target.dataset.attributeId;
+        const selectedValue = e.target.value;
+        this.handleAttributeChange(productId, attributeId, selectedValue);
+      }
+    });
+  }
+
+  async handleAttributeChange(productId, attributeId, selectedValue) {
+    console.log(
+      `Attribute changed for product ${productId}, attribute ${attributeId} to value ${selectedValue}`
+    );
+
+    // Collect all selected attributes for this product
+    const attributeSelects = this.popupElement.querySelectorAll(
+      `.product-attribute[data-product-id="${productId}"]`
+    );
+    const selectedAttributes = Array.from(attributeSelects).map((select) => ({
+      id: select.dataset.attributeId,
+      value: select.value,
+    }));
+
+    try {
+      // Fetch updated product variant information
+      const variantData = await this.adapter.fetchProductVariants(
+        productId,
+        selectedAttributes,
+        this.getLanguage()
+      );
+
+      // Update the UI with the new variant information
+      this.updateProductVariantInfo(productId, variantData);
+    } catch (error) {
+      console.error("Error fetching product variant:", error);
+    }
+  }
+
+  updateProductVariantInfo(productId, variantData) {
+    // Find the product element
+    const productElement = this.popupElement.querySelector(
+      `.product[data-product-id="${productId}"]`
+    );
+    if (!productElement) return;
+
+    // Update price
+    const priceElement = productElement.querySelector(".product-price");
+    if (priceElement && variantData.price) {
+      priceElement.textContent = `${variantData.price} ${
+        variantData.currency || ""
+      }`;
+    }
+
+    // Update availability/quantity
+    const quantityElement = productElement.querySelector(".product-quantity");
+    if (quantityElement && variantData.quantity !== undefined) {
+      quantityElement.textContent =
+        variantData.quantity > 0
+          ? `${t("in_stock")}: ${variantData.quantity}`
+          : t("out_of_stock");
+    }
+
+    // Update add-to-cart button state
+    const addToCartButton = productElement.querySelector(".add-to-cart");
+    if (addToCartButton) {
+      addToCartButton.disabled = variantData.quantity === 0;
+    }
+
+    // You can add more updates here as needed (e.g., updating the image)
+  }
+
+  getLanguage() {
+    return this.adapter.getLanguage();
   }
 }

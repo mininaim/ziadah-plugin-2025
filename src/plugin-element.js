@@ -98,15 +98,30 @@ class ZiadahPlugin extends HTMLElement {
   //   }
   // }
 
+  // initPopupFactory() {
+  //   if (!popupFactoryInstance) {
+  //     this.popupFactory = new PopupFactory(this.shadowRoot, this.adapter);
+  //     popupFactoryInstance = this.popupFactory;
+  //     console.log("Created PopupFactory:", this.popupFactory);
+  //     setState({ popupFactory: this.popupFactory });
+  //   } else {
+  //     this.popupFactory = popupFactoryInstance;
+  //     console.log("Using existing PopupFactory instance");
+  //   }
+  // }
   initPopupFactory() {
-    if (!popupFactoryInstance) {
+    if (!this.popupFactory) {
       this.popupFactory = new PopupFactory(this.shadowRoot, this.adapter);
-      popupFactoryInstance = this.popupFactory;
       console.log("Created PopupFactory:", this.popupFactory);
+      // Set the popupFactory in the state
       setState({ popupFactory: this.popupFactory });
     } else {
-      this.popupFactory = popupFactoryInstance;
       console.log("Using existing PopupFactory instance");
+    }
+    // Double-check that popupFactory is set in the state
+    const state = getState();
+    if (!state.popupFactory) {
+      console.error("PopupFactory not set in state after initialization");
     }
   }
 
@@ -209,6 +224,7 @@ class ZiadahPlugin extends HTMLElement {
     document.addEventListener("start-checkout", this.handleStartCheckout);
     document.addEventListener("purchase", this.handlePurchaseEvent);
   }
+
   async showPopup(campaignData) {
     try {
       console.log(
@@ -216,45 +232,120 @@ class ZiadahPlugin extends HTMLElement {
         JSON.stringify(campaignData, null, 2)
       );
 
-      const popupType =
-        campaignData?.style?.title?.en?.toLowerCase() || "modal";
-
-      const adapter = this.adapter;
-      const settings = await adapter.fetchSettings();
-      console.log("Fetched settings:", settings);
-
-      if (typeof settings.css !== "string") {
-        console.warn("Invalid CSS in settings, using empty string");
-        settings.css = "";
+      if (!this.popupFactory) {
+        console.error("PopupFactory is not initialized");
+        return;
       }
 
-      const popupInstance = await this.popupFactory.createPopup(
-        popupType,
-        campaignData,
-        settings
-      );
+      const settings = await this.adapter.fetchSettings();
 
-      if (!popupInstance) {
-        throw new Error(`Failed to create popup of type: ${popupType}`);
-      }
-
-      await popupInstance.showProducts(
-        campaignData.action_products,
-        campaignData.trigger_products,
-        { coupon: campaignData.coupon },
-        campaignData.type?.id,
-        campaignData.card,
-        campaignData.alternative_products,
-        campaignData.is_alternative_product_enabled,
-        null,
-        campaignData.campaign_settings
-      );
+      await this.showCampaignPopup(campaignData, {
+        popupFactory: this.popupFactory,
+        settings: settings,
+        lastEventName: this.lastEventName,
+        lastEventData: this.lastEventData,
+      });
     } catch (error) {
       console.error("Error showing popup:", error);
-      //console.error("Campaign data:", JSON.stringify(campaignData, null, 2));
       console.error("Stack trace:", error.stack);
     }
   }
+
+  async showCampaignPopup(campaignData, state) {
+    console.log("Showing campaign popup with data:", campaignData);
+
+    const actualCampaignData = campaignData.data;
+
+    if (!actualCampaignData || !actualCampaignData.id) {
+      console.error("Invalid campaign data");
+      notifyUser(t("campaign_error"), true);
+      return;
+    }
+
+    console.log("Current state:", state);
+    console.log("Current settings:", state.settings);
+
+    try {
+      const popupType =
+        actualCampaignData.style?.title?.en?.toLowerCase() || "modal";
+      const PopupComponent = await state.popupFactory.createPopup(
+        popupType,
+        actualCampaignData,
+        state.settings
+      );
+
+      if (!PopupComponent) {
+        throw new Error("Failed to create popup component");
+      }
+
+      await PopupComponent.showProducts(
+        actualCampaignData.action_products || [],
+        actualCampaignData.trigger_products || [],
+        {
+          has_coupon: actualCampaignData.is_product_coupon_enabled,
+          coupon: actualCampaignData.coupon,
+        },
+        actualCampaignData.type?.id,
+        actualCampaignData.card,
+        actualCampaignData.alternative_products,
+        actualCampaignData.is_alternative_product_enabled,
+        state.lastEventName === "add-remove-cart"
+          ? state.lastEventData?.id
+          : null,
+        actualCampaignData.campaign_settings
+      );
+    } catch (error) {
+      console.error("Error showing popup:", error);
+      notifyUser(t("campaign_error"), true);
+    }
+  }
+
+  // async showPopup(campaignData) {
+  //   try {
+  //     console.log(
+  //       "Showing popup for campaign:",
+  //       JSON.stringify(campaignData, null, 2)
+  //     );
+
+  //     const popupType =
+  //       campaignData?.style?.title?.en?.toLowerCase() || "modal";
+
+  //     const adapter = this.adapter;
+  //     const settings = await adapter.fetchSettings();
+  //     console.log("Fetched settings:", settings);
+
+  //     if (typeof settings.css !== "string") {
+  //       console.warn("Invalid CSS in settings, using empty string");
+  //       settings.css = "";
+  //     }
+
+  //     const popupInstance = await this.popupFactory.createPopup(
+  //       popupType,
+  //       campaignData,
+  //       settings
+  //     );
+
+  //     if (!popupInstance) {
+  //       throw new Error(`Failed to create popup of type: ${popupType}`);
+  //     }
+
+  //     await popupInstance.showProducts(
+  //       campaignData.action_products,
+  //       campaignData.trigger_products,
+  //       { coupon: campaignData.coupon },
+  //       campaignData.type?.id,
+  //       campaignData.card,
+  //       campaignData.alternative_products,
+  //       campaignData.is_alternative_product_enabled,
+  //       null,
+  //       campaignData.campaign_settings
+  //     );
+  //   } catch (error) {
+  //     console.error("Error showing popup:", error);
+  //     //console.error("Campaign data:", JSON.stringify(campaignData, null, 2));
+  //     console.error("Stack trace:", error.stack);
+  //   }
+  // }
 
   async handleOrderPage() {
     const orderId = this.getOrderIdFromDOM();
