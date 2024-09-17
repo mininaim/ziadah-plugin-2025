@@ -10,7 +10,7 @@
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal&display=swap">
     <style>
         body {
-            sfont-family: 'Tajawal', sans-serif;
+            font-family: 'Tajawal', sans-serif;
         }
     </style>
 
@@ -26,6 +26,8 @@
         <button id="triggerProductPageLeave" class="btn btn-warning mb-2">Product Page Leave</button>
         <button id="triggerStartCheckout" class="btn btn-info mb-2">Start Checkout</button>
         <button id="triggerPurchase" class="btn btn-dark mb-2">Purchase</button>
+
+        <button id="test-checkout-campaign">Test Checkout Campaign (Event ID 1)</button>
     </div>
 
     <h2>Navigation Simulation</h2>
@@ -127,7 +129,7 @@
         };
     </script>
 
-    <script src="../dist/index.js"></script>
+    <script src="../dist/index.min.js"></script>
     <script>
         const product1 = '413d8d37-73fd-4b55-a1f9-814ffa92f9ef';  
         const product2 = '052b288f-2d2c-4456-b2b9-f8265c552d1a';  
@@ -176,5 +178,45 @@
             });
         });
     </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize the plugin
+            const ziadahPlugin = document.createElement('ziadah-plugin');
+            document.body.appendChild(ziadahPlugin);
+
+            // Set up the test button
+            document.getElementById('test-checkout-campaign').addEventListener('click', () => {
+                console.log('Triggering checkout campaign test');
+                const checkoutEvent = new CustomEvent('start-checkout', {
+                    detail: { 
+                        products: [
+                            { product_id: product1, quantity: 1 }, 
+                            { product_id: product2, quantity: 2 }
+                        ],
+
+                        total_price: 100,
+                        currency: 'USD',
+                        shipping_price: 10,
+                        tax_price: 5,
+                        discount_price: 15,
+                        coupon_code: 'DISCOUNT10',
+                        customer_email: 'test@example.com',
+                        customer_phone: '1234567890',
+                        customer_name: 'John Doe',
+                        customer_address: '123 Main St, Anytown, USA',
+                        customer_city: 'Anytown',
+                        customer_state: 'CA',
+                        customer_zip: '12345',
+                        customer_country: 'USA'
+
+                    }
+                });
+                document.dispatchEvent(checkoutEvent);
+            });
+        });
+    </script>
+
+
 </body>
 </html>

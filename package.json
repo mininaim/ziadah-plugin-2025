@@ -4,9 +4,11 @@
   "description": "A customizable e-commerce plugin for Ziadah",
   "main": "dist/bundle.js",
   "scripts": {
-    "dev": "USE_MOCK_DATA=true NODE_ENV=development rollup -c -w",
-    "build": "USE_MOCK_DATA=true NODE_ENV=production rollup -c",
-    "test": "jest"
+    "build": "rollup -c",
+    "build:zid": "ADAPTER=zid rollup -c",
+    "build:shopify": "ADAPTER=shopify rollup -c",
+    "build:salla": "ADAPTER=salla rollup -c",
+    "build:mock": "ADAPTER=mock USE_MOCK_DATA=true rollup -c"
   },
   "keywords": [
     "e-commerce",

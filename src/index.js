@@ -1,4 +1,4 @@
-// index.js or main entry point
+// src/index.js
 
 import "./plugin-element.js";
 import { getState, setState } from "./store.js";

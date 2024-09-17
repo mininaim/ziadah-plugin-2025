@@ -22,6 +22,21 @@ npm install
 3. Build the plugin:
 npm run build
 
+# For Zid adapter
+npm run build:zid
+
+# For Shopify adapter
+npm run build:shopify
+
+# For Salla adapter
+npm run build:salla
+
+# For Mock adapter
+npm run build:mock
+
+ to use the mock adapter and enable mock data
+ADAPTER=mock USE_MOCK_DATA=true npm run build
+
 4. Copy the generated `bundle.js` file to your Ziadah store's `assets` folder.
 
 ## Usage

@@ -9,7 +9,9 @@ import { initializeSettings } from "./settings";
 import { t, notifyUser } from "./utils";
 import { EVENT_IDS } from "./utils/constants";
 
+let adapterInstance = null;
 let popupFactoryInstance = null;
+let isPluginInitialized = false;
 
 class ZiadahPlugin extends HTMLElement {
   constructor() {
@@ -22,13 +24,13 @@ class ZiadahPlugin extends HTMLElement {
   }
 
   get adapter() {
-    if (!this._adapter) {
+    if (!adapterInstance) {
       console.log("Creating new adapter");
       const platform = this.getPlatform();
-      this._adapter = createAdapter(platform);
-      setState({ adapter: this._adapter });
+      adapterInstance = createAdapter(platform);
+      setState({ adapter: adapterInstance });
     }
-    return this._adapter;
+    return adapterInstance;
   }
 
   getPlatform() {
@@ -50,19 +52,6 @@ class ZiadahPlugin extends HTMLElement {
       const state = getState();
       console.log(`Using language: ${state.language}`);
 
-      // Set language on the adapter
-      if (typeof adapter.setLanguage === "function") {
-        adapter.setLanguage(state.language);
-        console.log(`Set language on adapter: ${state.language}`);
-      }
-
-      // Set store ID on the adapter
-      if (typeof adapter.setStoreId === "function") {
-        const storeId = window.store_uuid || "default-store-id";
-        adapter.setStoreId(storeId);
-        console.log(`Set store ID on adapter: ${storeId}`);
-      }
-
       if (!adapter.settingsInitialized) {
         console.log("Fetching adapter settings");
         await adapter.fetchSettings();
@@ -71,12 +60,6 @@ class ZiadahPlugin extends HTMLElement {
       } else {
         console.log("Adapter settings already initialized");
       }
-
-      // Log the current adapter state
-      console.log("Adapter state after initialization:", {
-        language: adapter.getLanguage ? adapter.getLanguage() : "N/A",
-        storeId: adapter.getStoreId ? adapter.getStoreId() : "N/A",
-      });
     } catch (error) {
       console.error("Error initializing adapter:", error);
       setState({ language: "en" });
@@ -129,16 +112,15 @@ class ZiadahPlugin extends HTMLElement {
 
   async connectedCallback() {
     console.log("ZiadahPlugin connectedCallback called");
-    if (this.checkPluginState()) {
-      console.log("Skipping initialization due to plugin state");
+    if (isPluginInitialized) {
+      console.log("Plugin already initialized, skipping");
       return;
     }
 
-    this.isInitialized = true;
+    isPluginInitialized = true;
     setState({ pluginActive: true });
 
     const htmlLang = document.documentElement.lang || "en";
-    console.log("Detected HTML lang:", htmlLang);
     setState({ language: htmlLang });
 
     try {
@@ -146,11 +128,10 @@ class ZiadahPlugin extends HTMLElement {
       this.initPopupFactory();
       await this.initializePlugin();
       console.log("ZiadahPlugin initialization completed successfully");
-      const currentState = getState();
-      console.log("Current state after initialization:", currentState);
     } catch (error) {
       console.error("Error during ZiadahPlugin initialization:", error);
       setState({ pluginActive: false });
+      isPluginInitialized = false;
     }
   }
 
@@ -169,9 +150,14 @@ class ZiadahPlugin extends HTMLElement {
       lastPageUrl.includes("/products/") &&
       !currentPath.includes("/products/")
     ) {
-      await campaign.call(this, EVENT_IDS.PRODUCT_VIEW, "product-page-leave", {
-        id: sessionStorage.getItem("last_product_id"),
-      });
+      await campaign.call(
+        this,
+        EVENT_IDS.PRODUCT_PAGE_LEAVE,
+        "product-page-leave",
+        {
+          id: sessionStorage.getItem("last_product_id"),
+        }
+      );
     } else if (
       currentPath.includes("/order-completed/") ||
       currentPath.includes("/orders/")
@@ -415,14 +401,6 @@ class ZiadahPlugin extends HTMLElement {
     restartCampaign.call(this);
   }
 
-  cleanup() {
-    console.log("Cleaning up ZiadahPlugin");
-    setState({ pluginActive: false });
-    this._adapter = null;
-    this.popupFactory = null;
-    popupFactoryInstance = null;
-  }
-
   disconnectedCallback() {
     console.log("ZiadahPlugin disconnectedCallback called");
     this.cleanup();
@@ -432,6 +410,14 @@ class ZiadahPlugin extends HTMLElement {
     document.removeEventListener("remove-from-cart", this.handleRemoveFromCart);
     document.removeEventListener("start-checkout", this.handleStartCheckout);
     document.removeEventListener("purchase", this.handlePurchaseEvent);
+  }
+
+  cleanup() {
+    console.log("Cleaning up ZiadahPlugin");
+    setState({ pluginActive: false });
+    adapterInstance = null;
+    popupFactoryInstance = null;
+    isPluginInitialized = false;
   }
 }
 

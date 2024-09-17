@@ -149,26 +149,18 @@ export function logError(error, context = "") {
 
 export function getStoreFontFamily() {
   try {
-    // Get the computed style of the body element
-    const computedStyle = window.getComputedStyle(document.body);
-    const bodyFontFamily = computedStyle
-      .getPropertyValue("font-family")
-      .toLowerCase(); // Normalize case
+    const bodyFontFamily = window
+      .getComputedStyle(document.body)
+      .getPropertyValue("font-family");
+    console.log("Body font family:", bodyFontFamily);
 
-    // Check if a valid font-family is applied and it's not "none" or empty
-    if (
-      bodyFontFamily &&
-      bodyFontFamily !== "none" &&
-      bodyFontFamily.trim() !== ""
-    ) {
+    if (bodyFontFamily && bodyFontFamily !== "none") {
       return bodyFontFamily;
     }
   } catch (error) {
     console.warn("Error detecting store font:", error);
   }
 
-  // If no font-family is detected, load Rubik and return it
-  loadRubikFont();
   return "'Rubik', sans-serif";
 }
 
@@ -177,7 +169,6 @@ export function loadRubikFont() {
   link.href = "https://fonts.googleapis.com/css2?family=Rubik&display=swap";
   link.rel = "stylesheet";
   document.head.appendChild(link);
-  console.log("Rubik font loaded");
 }
 
 // Caching
