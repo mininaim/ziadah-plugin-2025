@@ -177,6 +177,7 @@ export function loadRubikFont() {
   link.href = "https://fonts.googleapis.com/css2?family=Rubik&display=swap";
   link.rel = "stylesheet";
   document.head.appendChild(link);
+  console.log("Rubik font loaded");
 }
 
 // Caching
