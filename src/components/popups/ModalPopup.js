@@ -226,7 +226,7 @@ export class ModalPopup extends AbstractPopup {
   }
 
   generateModalContent(campaignData) {
-    this.state = getState(); // Update the state before generating content
+    this.state = getState();
     const language = this.state.language;
     console.log("Current language from state:", language);
 
@@ -336,34 +336,47 @@ export class ModalPopup extends AbstractPopup {
         }
 
         // Generate attribute selectors if available
+        // Safely generate attribute selectors
         let attributeSelectors = "";
-        if (product.attributes && product.attributes.length > 0) {
+        if (product.attributes && Array.isArray(product.attributes)) {
           attributeSelectors = product.attributes
-            .map(
-              (attribute) => `
-       <div class="attribute-selector">
-         <label for="${this.escapeHtml(product.uuid)}-${attribute.id}">
-           ${this.escapeHtml(attribute.name[this.getLanguage()])}:
-         </label>
-         <select 
-           id="${this.escapeHtml(product.uuid)}-${attribute.id}" 
-           class="product-attribute" 
-           data-product-id="${this.escapeHtml(product.uuid)}" 
-           data-attribute-id="${attribute.id}"
-         >
-           ${attribute.presets
-             .map(
-               (preset) => `
-             <option value="${this.escapeHtml(preset.id)}">
-               ${this.escapeHtml(preset.name[this.getLanguage()])}
-             </option>
-           `
-             )
-             .join("")}
-         </select>
-       </div>
-     `
-            )
+            .map((attribute) => {
+              const attributeName =
+                attribute.name && attribute.name[this.getLanguage()]
+                  ? attribute.name[this.getLanguage()]
+                  : "Unnamed Attribute";
+
+              // Generate options safely
+              const options = Array.isArray(attribute.presets)
+                ? attribute.presets
+                    .map((preset) => {
+                      const presetName =
+                        preset.name && preset.name[this.getLanguage()]
+                          ? preset.name[this.getLanguage()]
+                          : "Unnamed Preset";
+                      return `<option value="${this.escapeHtml(
+                        preset.id
+                      )}">${this.escapeHtml(presetName)}</option>`;
+                    })
+                    .join("")
+                : "";
+
+              return `
+      <div class="attribute-selector">
+        <label for="${this.escapeHtml(product.uuid)}-${
+                attribute.id
+              }">${this.escapeHtml(attributeName)}:</label>
+        <select 
+          id="${this.escapeHtml(product.uuid)}-${attribute.id}" 
+          class="product-attribute" 
+          data-product-id="${this.escapeHtml(product.uuid)}" 
+          data-attribute-id="${attribute.id}"
+        >
+          ${options}
+        </select>
+      </div>
+    `;
+            })
             .join("");
         }
 
@@ -530,7 +543,11 @@ export class ModalPopup extends AbstractPopup {
       addToCartButton.disabled = variantData.quantity === 0;
     }
 
-    // You can add more updates here as needed (e.g., updating the image)
+    // Update the product image
+    // const imageElement = productElement.querySelector(".product-image");
+    // if (imageElement && variantData.images && variantData.images.length > 0) {
+    //   imageElement.src = variantData.images[0];
+    // }
   }
 
   getLanguage() {
