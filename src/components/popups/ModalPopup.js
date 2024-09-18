@@ -336,66 +336,7 @@ export class ModalPopup extends AbstractPopup {
         }
 
         // variant dropdown
-        let variantDropdown = "";
-        if (
-          product.attributes &&
-          Array.isArray(product.attributes) &&
-          product.attributes.length > 0
-        ) {
-          const optionsLabel = this.t("options");
-          const attributeSelectors = product.attributes
-            .map((attr, attrIndex) => {
-              const attributeName =
-                attr.name[this.getLanguage()] ||
-                attr.name.en ||
-                "Unnamed Attribute";
-
-              const options = attr.presets
-                .map((preset) => {
-                  const presetName =
-                    preset.value[this.getLanguage()] ||
-                    preset.value.en ||
-                    "Unnamed Preset";
-                  return `<option value="${this.escapeHtml(
-                    presetName
-                  )}">${this.escapeHtml(presetName)}</option>`;
-                })
-                .join("");
-
-              return `
-              <div style="width: 100%; margin-bottom: 8px;">
-                <label style="width: 100%; font-size: 0.75rem; text-align: start; display: block; margin-bottom: 4px;">
-                  ${this.escapeHtml(
-                    attributeName.replace(/^\w/, (c) => c.toUpperCase())
-                  )}
-                </label>
-                <select 
-                  data-product-id="${this.escapeHtml(
-                    product.uuid
-                  )}-${attrIndex}"
-                  data-attribute-id="${attr.id}"
-                  class="product-attribute"
-                  style="font-size: 14px; width: 100%; border-radius: 4px; border: 1px solid #ccc; padding: 6px; outline: none;"
-                >
-                  ${options}
-                </select>
-              </div>
-            `;
-            })
-            .join("");
-
-          variantDropdown = `
-            <div class="variant-dropdown" style="width: 100%; position: relative; margin-bottom: 10px;">
-              <div class="dropdown-header" style="display: flex; justify-content: space-between; align-items: center; padding: 8px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">
-                <span>${optionsLabel}</span>
-                <span class="chevron">▼</span>
-              </div>
-              <div class="dropdown-content" style="display: none; position: absolute; width: 100%; max-height: 200px; overflow-y: auto; background-color: white; border: 1px solid #ccc; border-top: none; border-radius: 0 0 4px 4px; z-index: 1;">
-                ${attributeSelectors}
-              </div>
-            </div>
-          `;
-        }
+        const variantDropdown = this.generateVariantDropdown(product);
 
         return `
           <div class="product" data-product-id="${this.escapeHtml(
@@ -425,6 +366,65 @@ export class ModalPopup extends AbstractPopup {
       .join("");
   }
 
+  generateVariantDropdown(product) {
+    if (
+      !product.attributes ||
+      !Array.isArray(product.attributes) ||
+      product.attributes.length === 0
+    ) {
+      return "";
+    }
+
+    const optionsLabel = this.t("options");
+    const attributeSelectors = product.attributes
+      .map((attr, attrIndex) => {
+        const attributeName =
+          attr.name[this.getLanguage()] || attr.name.en || "Unnamed Attribute";
+
+        const options = attr.presets
+          .map((preset) => {
+            const presetName =
+              preset.value[this.getLanguage()] ||
+              preset.value.en ||
+              "Unnamed Preset";
+            return `<option value="${this.escapeHtml(
+              presetName
+            )}">${this.escapeHtml(presetName)}</option>`;
+          })
+          .join("");
+
+        return `
+        <div style="width: 100%; margin-bottom: 8px;">
+          <label style="width: 100%; font-size: 0.75rem; text-align: start; display: block; margin-bottom: 4px;">
+            ${this.escapeHtml(
+              attributeName.replace(/^\w/, (c) => c.toUpperCase())
+            )}
+          </label>
+          <select 
+            data-product-id="${this.escapeHtml(product.uuid)}-${attrIndex}"
+            data-attribute-id="${attr.id}"
+            class="product-attribute"
+            style="font-size: 14px; width: 100%; border-radius: 4px; border: 1px solid #ccc; padding: 6px; outline: none;"
+          >
+            ${options}
+          </select>
+        </div>
+      `;
+      })
+      .join("");
+
+    return `
+      <div class="variant-dropdown" style="width: 100%; position: relative; margin-bottom: 10px;">
+        <div class="dropdown-header" style="display: flex; justify-content: space-between; align-items: center; padding: 8px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">
+          <span>${optionsLabel}</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="dropdown-content" style="display: none; position: absolute; width: 100%; max-height: 200px; overflow-y: auto; background-color: white; border: 1px solid #ccc; border-top: none; border-radius: 0 0 4px 4px; z-index: 1;">
+          ${attributeSelectors}
+        </div>
+      </div>
+    `;
+  }
   generateCouponSection(coupon) {
     if (!coupon || !coupon.code) {
       return "";
