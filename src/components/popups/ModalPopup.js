@@ -4,6 +4,9 @@ import { sanitizeCSS } from "../../utils/cssSanitizer";
 import { getStoreFontFamily, loadRubikFont, t } from "../../utils";
 import { getState } from "../../store";
 
+import chevronDownIcon from "../../icons/chevronDownIcon.js";
+import chevronUpIcon from "../../icons/chevronUpIcon.js";
+
 export class ModalPopup extends AbstractPopup {
   async create(campaignData, settings) {
     // console.log(
@@ -17,9 +20,7 @@ export class ModalPopup extends AbstractPopup {
     modalElement.classList.add("ziadah-popup", "ziadah-modal");
 
     const styles = document.createElement("style");
-    styles.textContent = this.getDefaultStyles(settings.fontFamily);
-
-    modalElement.innerHTML = '<div class="modal-content"></div>';
+    styles.textContent = await this.getStyles(settings.fontFamily);
 
     modalElement.prepend(styles);
     this.popupElement = modalElement;
@@ -27,6 +28,18 @@ export class ModalPopup extends AbstractPopup {
     this.shadowRoot.appendChild(modalElement);
 
     this.setupEventListeners();
+  }
+
+  async getStyles(fontFamily) {
+    const response = await fetch("/src/styles/ModalPopup.css");
+    let css = await response.text();
+    css = css.replace(/var\(--modal-font-family\)/g, fontFamily);
+    return css + this.getCustomStyles();
+  }
+
+  getCustomStyles() {
+    // You can add any additional custom styles here
+    return "";
   }
 
   async showProducts(
@@ -222,6 +235,61 @@ export class ModalPopup extends AbstractPopup {
         border-radius: 4px;
         cursor: pointer;
       }
+     .variant-dropdown {
+      width: 100%;
+      position: relative;
+      margin-bottom: 10px;
+    }
+
+    .dropdown-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+      background-color: #f8f8f8;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      width: 100%;
+      max-height: 200px;
+      overflow-y: auto;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-top: none;
+      border-radius: 0 0 4px 4px;
+      z-index: 1;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .chevron-icon {
+      width: 20px;
+      height: 20px;
+      transition: transform 0.3s ease;
+    }
+
+    .dropdown-header:hover .chevron-icon {
+      transform: scale(1.2);
+    }
+
+    .product-attribute {
+      font-size: 14px;
+      width: 100%;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      padding: 6px;
+      outline: none;
+      margin-bottom: 8px;
+    }
+
+    .product-attribute:focus {
+      border-color: #007bff;
+        box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+      }
     `;
   }
 
@@ -375,7 +443,8 @@ export class ModalPopup extends AbstractPopup {
       return "";
     }
 
-    const optionsLabel = this.t("options");
+    const optionsLabel = t("options");
+
     const attributeSelectors = product.attributes
       .map((attr, attrIndex) => {
         const attributeName =
@@ -394,37 +463,39 @@ export class ModalPopup extends AbstractPopup {
           .join("");
 
         return `
-        <div style="width: 100%; margin-bottom: 8px;">
-          <label style="width: 100%; font-size: 0.75rem; text-align: start; display: block; margin-bottom: 4px;">
-            ${this.escapeHtml(
-              attributeName.replace(/^\w/, (c) => c.toUpperCase())
-            )}
-          </label>
+      <div class="variant-collapse" data-attribute-id="${attr.id}">
+        <div class="collapse-header">
+          <span>${this.escapeHtml(
+            attributeName.replace(/^\w/, (c) => c.toUpperCase())
+          )}</span>
+          <span class="chevron">${chevronDownIcon()}</span>
+        </div>
+        <div class="collapse-content" style="display: none;">
           <select 
             data-product-id="${this.escapeHtml(product.uuid)}-${attrIndex}"
             data-attribute-id="${attr.id}"
             class="product-attribute"
-            style="font-size: 14px; width: 100%; border-radius: 4px; border: 1px solid #ccc; padding: 6px; outline: none;"
           >
             ${options}
           </select>
         </div>
-      `;
+      </div>
+    `;
       })
       .join("");
 
     return `
-      <div class="variant-dropdown" style="width: 100%; position: relative; margin-bottom: 10px;">
-        <div class="dropdown-header" style="display: flex; justify-content: space-between; align-items: center; padding: 8px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">
-          <span>${optionsLabel}</span>
-          <span class="chevron">▼</span>
-        </div>
-        <div class="dropdown-content" style="display: none; position: absolute; width: 100%; max-height: 200px; overflow-y: auto; background-color: white; border: 1px solid #ccc; border-top: none; border-radius: 0 0 4px 4px; z-index: 1;">
-          ${attributeSelectors}
-        </div>
+    <div class="variant-dropdown">
+      <div class="dropdown-header">
+        <span>${optionsLabel}</span>
       </div>
-    `;
+      <div class="dropdown-content">
+        ${attributeSelectors}
+      </div>
+    </div>
+  `;
   }
+
   generateCouponSection(coupon) {
     if (!coupon || !coupon.code) {
       return "";
@@ -494,30 +565,19 @@ export class ModalPopup extends AbstractPopup {
     });
 
     this.popupElement.addEventListener("click", (e) => {
-      const dropdownHeader = e.target.closest(".dropdown-header");
-      if (dropdownHeader) {
-        const dropdown = dropdownHeader.closest(".variant-dropdown");
-        const dropdownContent = dropdown.querySelector(".dropdown-content");
-        const chevron = dropdown.querySelector(".chevron");
+      const collapseHeader = e.target.closest(".collapse-header");
+      if (collapseHeader) {
+        const collapse = collapseHeader.closest(".variant-collapse");
+        const collapseContent = collapse.querySelector(".collapse-content");
+        const chevron = collapse.querySelector(".chevron");
 
-        if (dropdownContent.style.display === "none") {
-          dropdownContent.style.display = "block";
-          chevron.textContent = "▲";
+        if (collapseContent.style.display === "none") {
+          collapseContent.style.display = "block";
+          chevron.innerHTML = chevronUpIcon();
         } else {
-          dropdownContent.style.display = "none";
-          chevron.textContent = "▼";
+          collapseContent.style.display = "none";
+          chevron.innerHTML = chevronDownIcon();
         }
-      } else if (!e.target.closest(".dropdown-content")) {
-        // Close all dropdowns when clicking outside
-        const openDropdowns = this.popupElement.querySelectorAll(
-          '.dropdown-content[style="display: block;"]'
-        );
-        openDropdowns.forEach((dropdown) => {
-          dropdown.style.display = "none";
-          dropdown
-            .closest(".variant-dropdown")
-            .querySelector(".chevron").textContent = "▼";
-        });
       }
     });
 

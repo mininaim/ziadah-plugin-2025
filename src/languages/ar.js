@@ -35,4 +35,6 @@ export default {
   items_left: "قطع متبقية",
   max_quantity_reached: "تم الوصول إلى الحد الأقصى للكمية",
   not_enough_stock: "لا يوجد مخزون كافٍ",
+
+  options: "الخيارات",
 };

@@ -35,4 +35,6 @@ export default {
   items_left: "items left",
   max_quantity_reached: "Maximum quantity reached",
   not_enough_stock: "Not enough stock available",
+
+  options: "Options",
 };
