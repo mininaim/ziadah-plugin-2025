@@ -335,52 +335,72 @@ export class ModalPopup extends AbstractPopup {
           }
         }
 
-        // Generate attribute selectors if available
-        let attributeSelectors = "";
-        if (product.attributes && Array.isArray(product.attributes)) {
-          attributeSelectors = product.attributes
-            .map((attribute) => {
+        // variant dropdown
+        let variantDropdown = "";
+        if (
+          product.attributes &&
+          Array.isArray(product.attributes) &&
+          product.attributes.length > 0
+        ) {
+          const optionsLabel = this.t("options");
+          const attributeSelectors = product.attributes
+            .map((attr, attrIndex) => {
               const attributeName =
-                attribute.name && attribute.name[this.getLanguage()]
-                  ? attribute.name[this.getLanguage()]
-                  : "Unnamed Attribute";
+                attr.name[this.getLanguage()] ||
+                attr.name.en ||
+                "Unnamed Attribute";
 
-              // Generate options safely
-              const options = Array.isArray(attribute.presets)
-                ? attribute.presets
-                    .map((preset) => {
-                      const presetName =
-                        preset.value && preset.value[this.getLanguage()]
-                          ? preset.value[this.getLanguage()]
-                          : preset.slug || "Unnamed Preset";
-                      return `<option value="${this.escapeHtml(
-                        preset.id
-                      )}">${this.escapeHtml(presetName)}</option>`;
-                    })
-                    .join("")
-                : "";
+              const options = attr.presets
+                .map((preset) => {
+                  const presetName =
+                    preset.value[this.getLanguage()] ||
+                    preset.value.en ||
+                    "Unnamed Preset";
+                  return `<option value="${this.escapeHtml(
+                    presetName
+                  )}">${this.escapeHtml(presetName)}</option>`;
+                })
+                .join("");
 
               return `
-  <div class="attribute-selector">
-    <label for="${this.escapeHtml(product.uuid)}-${
-                attribute.id
-              }">${this.escapeHtml(attributeName)}:</label>
-    <select 
-      id="${this.escapeHtml(product.uuid)}-${attribute.id}" 
-      class="product-attribute" 
-      data-product-id="${this.escapeHtml(product.uuid)}" 
-      data-attribute-id="${attribute.id}"
-    >
-      ${options}
-    </select>
-  </div>
-`;
+              <div style="width: 100%; margin-bottom: 8px;">
+                <label style="width: 100%; font-size: 0.75rem; text-align: start; display: block; margin-bottom: 4px;">
+                  ${this.escapeHtml(
+                    attributeName.replace(/^\w/, (c) => c.toUpperCase())
+                  )}
+                </label>
+                <select 
+                  data-product-id="${this.escapeHtml(
+                    product.uuid
+                  )}-${attrIndex}"
+                  data-attribute-id="${attr.id}"
+                  class="product-attribute"
+                  style="font-size: 14px; width: 100%; border-radius: 4px; border: 1px solid #ccc; padding: 6px; outline: none;"
+                >
+                  ${options}
+                </select>
+              </div>
+            `;
             })
             .join("");
+
+          variantDropdown = `
+            <div class="variant-dropdown" style="width: 100%; position: relative; margin-bottom: 10px;">
+              <div class="dropdown-header" style="display: flex; justify-content: space-between; align-items: center; padding: 8px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">
+                <span>${optionsLabel}</span>
+                <span class="chevron">▼</span>
+              </div>
+              <div class="dropdown-content" style="display: none; position: absolute; width: 100%; max-height: 200px; overflow-y: auto; background-color: white; border: 1px solid #ccc; border-top: none; border-radius: 0 0 4px 4px; z-index: 1;">
+                ${attributeSelectors}
+              </div>
+            </div>
+          `;
         }
 
         return `
-          <div class="product">
+          <div class="product" data-product-id="${this.escapeHtml(
+            product.uuid
+          )}">
             ${
               imageUrl
                 ? `<img src="${imageUrl}" alt="${this.escapeHtml(
@@ -392,7 +412,7 @@ export class ModalPopup extends AbstractPopup {
               <h3>${this.escapeHtml(name)}</h3>
                <p>${priceDisplay}</p>
               <p>${quantityInfo}</p>
-              ${attributeSelectors}
+              ${variantDropdown}
               <button class="${buttonClass}" data-product-id="${this.escapeHtml(
           product.uuid || ""
         )}" ${product.quantity === 0 ? "disabled" : ""}>
@@ -473,6 +493,34 @@ export class ModalPopup extends AbstractPopup {
       }
     });
 
+    this.popupElement.addEventListener("click", (e) => {
+      const dropdownHeader = e.target.closest(".dropdown-header");
+      if (dropdownHeader) {
+        const dropdown = dropdownHeader.closest(".variant-dropdown");
+        const dropdownContent = dropdown.querySelector(".dropdown-content");
+        const chevron = dropdown.querySelector(".chevron");
+
+        if (dropdownContent.style.display === "none") {
+          dropdownContent.style.display = "block";
+          chevron.textContent = "▲";
+        } else {
+          dropdownContent.style.display = "none";
+          chevron.textContent = "▼";
+        }
+      } else if (!e.target.closest(".dropdown-content")) {
+        // Close all dropdowns when clicking outside
+        const openDropdowns = this.popupElement.querySelectorAll(
+          '.dropdown-content[style="display: block;"]'
+        );
+        openDropdowns.forEach((dropdown) => {
+          dropdown.style.display = "none";
+          dropdown
+            .closest(".variant-dropdown")
+            .querySelector(".chevron").textContent = "▼";
+        });
+      }
+    });
+
     this.popupElement.addEventListener("change", (e) => {
       if (e.target.classList.contains("product-attribute")) {
         const productId = e.target.dataset.productId;
@@ -483,17 +531,29 @@ export class ModalPopup extends AbstractPopup {
     });
   }
   async handleAttributeChange(event) {
+    if (!event || !event.target) {
+      console.error("Invalid event object");
+      return;
+    }
+
     const select = event.target;
     const productId = select.getAttribute("data-product-id");
     const attributeId = select.getAttribute("data-attribute-id");
     const selectedValue = select.value;
+
+    if (!productId || !attributeId) {
+      console.error("Missing product ID or attribute ID");
+      return;
+    }
 
     console.log(
       `Attribute changed for product ${productId}, attribute ${attributeId} to value ${selectedValue}`
     );
 
     try {
-      const product = this.products.find((p) => p.uuid === productId);
+      const product = this.products.find(
+        (p) => p.uuid === productId.split("-")[0]
+      );
       if (!product) {
         console.error("Product not found");
         return;
@@ -508,7 +568,7 @@ export class ModalPopup extends AbstractPopup {
       }
 
       const selectedPreset = attribute.presets.find(
-        (p) => p.id.toString() === selectedValue
+        (p) => p.value[this.getLanguage()] === selectedValue
       );
       if (!selectedPreset) {
         console.error("Selected preset not found");
@@ -521,7 +581,7 @@ export class ModalPopup extends AbstractPopup {
         attribute_values: [
           {
             attribute_id: parseInt(attributeId),
-            value: selectedValue,
+            value: selectedPreset.id.toString(),
           },
         ],
       };
@@ -532,55 +592,38 @@ export class ModalPopup extends AbstractPopup {
       );
       console.log("Variant updated successfully:", response.data);
 
-      // Update the product price if necessary
-      if (response.data && response.data.price) {
-        const priceElement = document.querySelector(
-          `#product-${productId} .product-price`
-        );
-        if (priceElement) {
-          priceElement.textContent = this.formatPrice(response.data.price);
-        }
-      }
+      this.updateProductVariantInfo(productId, response.data);
     } catch (error) {
       console.error("Error updating variant:", error);
     }
   }
 
   updateProductVariantInfo(productId, variantData) {
-    // Find the product element
     const productElement = this.popupElement.querySelector(
       `.product[data-product-id="${productId}"]`
     );
     if (!productElement) return;
 
-    // Update price
     const priceElement = productElement.querySelector(".product-price");
     if (priceElement && variantData.price) {
-      priceElement.textContent = `${variantData.price} ${
-        variantData.currency || ""
-      }`;
+      priceElement.textContent = this.formatPrice(
+        variantData.price,
+        variantData.currency
+      );
     }
 
-    // Update availability/quantity
     const quantityElement = productElement.querySelector(".product-quantity");
     if (quantityElement && variantData.quantity !== undefined) {
       quantityElement.textContent =
         variantData.quantity > 0
-          ? `${t("in_stock")}: ${variantData.quantity}`
-          : t("out_of_stock");
+          ? `${this.t("in_stock")}: ${variantData.quantity}`
+          : this.t("out_of_stock");
     }
 
-    // Update add-to-cart button state
     const addToCartButton = productElement.querySelector(".add-to-cart");
     if (addToCartButton) {
       addToCartButton.disabled = variantData.quantity === 0;
     }
-
-    // Update the product image
-    // const imageElement = productElement.querySelector(".product-image");
-    // if (imageElement && variantData.images && variantData.images.length > 0) {
-    //   imageElement.src = variantData.images[0];
-    // }
   }
 
   getLanguage() {
