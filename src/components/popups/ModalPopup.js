@@ -336,7 +336,6 @@ export class ModalPopup extends AbstractPopup {
         }
 
         // Generate attribute selectors if available
-        // Safely generate attribute selectors
         let attributeSelectors = "";
         if (product.attributes && Array.isArray(product.attributes)) {
           attributeSelectors = product.attributes
@@ -351,9 +350,9 @@ export class ModalPopup extends AbstractPopup {
                 ? attribute.presets
                     .map((preset) => {
                       const presetName =
-                        preset.name && preset.name[this.getLanguage()]
-                          ? preset.name[this.getLanguage()]
-                          : "Unnamed Preset";
+                        preset.value && preset.value[this.getLanguage()]
+                          ? preset.value[this.getLanguage()]
+                          : preset.slug || "Unnamed Preset";
                       return `<option value="${this.escapeHtml(
                         preset.id
                       )}">${this.escapeHtml(presetName)}</option>`;
@@ -362,20 +361,20 @@ export class ModalPopup extends AbstractPopup {
                 : "";
 
               return `
-      <div class="attribute-selector">
-        <label for="${this.escapeHtml(product.uuid)}-${
+  <div class="attribute-selector">
+    <label for="${this.escapeHtml(product.uuid)}-${
                 attribute.id
               }">${this.escapeHtml(attributeName)}:</label>
-        <select 
-          id="${this.escapeHtml(product.uuid)}-${attribute.id}" 
-          class="product-attribute" 
-          data-product-id="${this.escapeHtml(product.uuid)}" 
-          data-attribute-id="${attribute.id}"
-        >
-          ${options}
-        </select>
-      </div>
-    `;
+    <select 
+      id="${this.escapeHtml(product.uuid)}-${attribute.id}" 
+      class="product-attribute" 
+      data-product-id="${this.escapeHtml(product.uuid)}" 
+      data-attribute-id="${attribute.id}"
+    >
+      ${options}
+    </select>
+  </div>
+`;
             })
             .join("");
         }
@@ -483,33 +482,67 @@ export class ModalPopup extends AbstractPopup {
       }
     });
   }
+  async handleAttributeChange(event) {
+    const select = event.target;
+    const productId = select.getAttribute("data-product-id");
+    const attributeId = select.getAttribute("data-attribute-id");
+    const selectedValue = select.value;
 
-  async handleAttributeChange(productId, attributeId, selectedValue) {
     console.log(
       `Attribute changed for product ${productId}, attribute ${attributeId} to value ${selectedValue}`
     );
 
-    // Collect all selected attributes for this product
-    const attributeSelects = this.popupElement.querySelectorAll(
-      `.product-attribute[data-product-id="${productId}"]`
-    );
-    const selectedAttributes = Array.from(attributeSelects).map((select) => ({
-      id: select.dataset.attributeId,
-      value: select.value,
-    }));
-
     try {
-      // Fetch updated product variant information
-      const variantData = await this.adapter.fetchProductVariants(
-        productId,
-        selectedAttributes,
-        this.getLanguage()
-      );
+      const product = this.products.find((p) => p.uuid === productId);
+      if (!product) {
+        console.error("Product not found");
+        return;
+      }
 
-      // Update the UI with the new variant information
-      this.updateProductVariantInfo(productId, variantData);
+      const attribute = product.attributes.find(
+        (a) => a.id.toString() === attributeId
+      );
+      if (!attribute) {
+        console.error("Attribute not found");
+        return;
+      }
+
+      const selectedPreset = attribute.presets.find(
+        (p) => p.id.toString() === selectedValue
+      );
+      if (!selectedPreset) {
+        console.error("Selected preset not found");
+        return;
+      }
+
+      const variantData = {
+        product_id: product.id,
+        names: [selectedPreset.value.en || "", selectedPreset.value.ar || ""],
+        attribute_values: [
+          {
+            attribute_id: parseInt(attributeId),
+            value: selectedValue,
+          },
+        ],
+      };
+
+      const response = await this.apiClient.post(
+        "/zid/store-front/variant",
+        variantData
+      );
+      console.log("Variant updated successfully:", response.data);
+
+      // Update the product price if necessary
+      if (response.data && response.data.price) {
+        const priceElement = document.querySelector(
+          `#product-${productId} .product-price`
+        );
+        if (priceElement) {
+          priceElement.textContent = this.formatPrice(response.data.price);
+        }
+      }
     } catch (error) {
-      console.error("Error fetching product variant:", error);
+      console.error("Error updating variant:", error);
     }
   }
 
