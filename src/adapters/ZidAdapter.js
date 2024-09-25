@@ -47,6 +47,7 @@ export class ZidAdapter extends AbstractEcommerceAdapter {
   }
   setLanguage(lang) {
     this.language = lang;
+    this.clearLanguageCache();
     console.log(`ZidAdapter: Language set to ${lang}`);
   }
 

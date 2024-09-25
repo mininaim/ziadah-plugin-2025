@@ -1,19 +1,26 @@
-import { getState } from "../../store";
+import { getState } from "../../../store";
 
 export class AbstractPopup {
   constructor(shadowRoot, adapter) {
+    if (new.target === AbstractPopup) {
+      throw new TypeError("Cannot construct AbstractPopup instances directly");
+    }
     this.shadowRoot = shadowRoot;
     this.adapter = adapter;
     this.popupElement = null;
     this.state = getState();
-
-    if (new.target === AbstractPopup) {
-      throw new TypeError("Cannot construct AbstractPopup instances directly");
-    }
   }
 
-  async create(content, settings) {
+  async create(campaignData, settings) {
     throw new Error("Method 'create' must be implemented.");
+  }
+
+  getAdapter() {
+    return this.adapter;
+  }
+  getLanguage() {
+    const state = getState();
+    return state.language || "en"; // Return 'en' as default if language is not set
   }
 
   show() {
@@ -24,7 +31,7 @@ export class AbstractPopup {
     throw new Error("Method 'hide' must be implemented.");
   }
 
-  update(content) {
+  update(campaignData) {
     throw new Error("Method 'update' must be implemented.");
   }
 
@@ -32,11 +39,17 @@ export class AbstractPopup {
     throw new Error("Method 'updateContent' must be implemented.");
   }
 
-  // updateContent(content) {
-  //   if (this.contentElement) {
-  //     this.contentElement.innerHTML = content;
-  //   }
-  // }
+  destroy() {
+    throw new Error("Method 'destroy' must be implemented.");
+  }
+
+  isOpen() {
+    throw new Error("Method 'isOpen' must be implemented.");
+  }
+
+  getElement() {
+    throw new Error("Method 'getElement' must be implemented.");
+  }
 
   handleAddToCart(productData) {
     throw new Error("Method 'handleAddToCart' must be implemented.");

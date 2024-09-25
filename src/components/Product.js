@@ -1,26 +1,181 @@
 import { t } from "../utils";
+import { modalConfig } from "./popups/config/modalConfig";
 
 export class Product {
   constructor(shadowRoot, adapter) {
     this.shadowRoot = shadowRoot;
     this.adapter = adapter;
+    this.config = modalConfig;
+    this.productElement = null;
+  }
+  create(productData) {
+    const lang = this.adapter.getLanguage();
+    const name = productData.name?.[lang] || productData.name?.en || "";
+    const buttonText = this.getButtonText(productData.type, false);
+    const campaignTypeText = this.getCampaignTypeText(productData.type);
+
+    const hasOptions =
+      productData.attributes && productData.attributes.length > 0;
+    const attributesHTML = hasOptions
+      ? this.generateAttributesHTML(productData.attributes)
+      : "";
+
+    return `
+      <div class="product" data-product-id="${productData.uuid || ""}">
+        <img class="product-image" src="${
+          productData.images[0]?.images.small || ""
+        }" alt="${name}">
+        <div class="product-name">${name}</div>
+        <div class="product-price">${productData.price || ""} ${
+      productData.currency || ""
+    }</div>
+        ${
+          hasOptions
+            ? `
+          <div class="attributes-container">
+            <div class="attributes-header">
+              <span class="attributes-title">${
+                this.adapter.t("options") || "الخيارات"
+              }</span>
+              <span class="chevron-icon">&#9660;</span>
+            </div>
+            <div class="attributes-content" style="display: none;">
+              ${attributesHTML}
+            </div>
+          </div>
+        `
+            : ""
+        }
+        <div class="product-action-container">
+          <button class="add-to-cart" data-product-id="${
+            productData.uuid || ""
+          }">${buttonText}</button>
+          <span class="campaign-type" style="display: none;"> type is ${campaignTypeText}</span>
+        </div>
+      </div>
+    `;
   }
 
-  create(productData) {
-    const productElement = document.createElement("div");
-    productElement.classList.add("ziadah-product");
+  lazyLoadAttributes(attributes) {
+    if (!attributes || attributes.length === 0) {
+      this.productElement.querySelector(".attributes-content").textContent =
+        "No options available";
+      return;
+    }
 
-    const styles = document.createElement("style");
-    styles.textContent = this.getStyles();
+    const fragment = document.createDocumentFragment();
+    const lang = this.adapter.getLanguage();
 
-    productElement.innerHTML = this.generateProductContent(productData);
+    attributes.forEach((attr) => {
+      const attributeElement = document.createElement("div");
+      attributeElement.className = "product-attribute";
+      attributeElement.innerHTML = `
+        <div class="attribute-header" data-attribute-id="${attr.id}">
+          <span class="attribute-name">${
+            attr.name[lang] || attr.name.en || ""
+          }</span>
+          <span class="chevron-icon">&#9660;</span>
+        </div>
+        <div class="attribute-options" style="display: none;"></div>
+      `;
 
-    productElement.prepend(styles);
-    this.productElement = productElement;
+      fragment.appendChild(attributeElement);
+    });
 
-    this.setupEventListeners();
+    this.productElement
+      .querySelector(".attributes-content")
+      .appendChild(fragment);
+  }
 
-    return productElement;
+  lazyLoadOptions(attributeElement, presets) {
+    const optionsContainer =
+      attributeElement.querySelector(".attribute-options");
+    if (optionsContainer.children.length > 0) return; // Options already loaded
+
+    const fragment = document.createDocumentFragment();
+    const lang = this.adapter.getLanguage();
+
+    presets.forEach((preset) => {
+      const label = document.createElement("label");
+      label.className = "attribute-option";
+      label.innerHTML = `
+        <input type="radio" name="attribute-${
+          attributeElement.dataset.attributeId
+        }" value="${preset.id}">
+        ${preset.value[lang] || preset.value.en || ""}
+      `;
+      fragment.appendChild(label);
+    });
+
+    optionsContainer.appendChild(fragment);
+  }
+
+  setupEventListeners() {
+    console.log("Setting up event listeners");
+
+    this.productElement.addEventListener("click", (e) => {
+      if (e.target.classList.contains("add-to-cart")) {
+        const productId = e.target.dataset.productId;
+        this.handleAddToCart(productId);
+      } else if (e.target.closest(".attributes-header")) {
+        this.toggleAttributesContent();
+      } else if (e.target.closest(".attribute-header")) {
+        this.toggleAttributeOptions(e.target.closest(".product-attribute"));
+      }
+    });
+  }
+  toggleAttributesContent() {
+    const content = this.productElement.querySelector(".attributes-content");
+    const chevron = this.productElement.querySelector(
+      ".attributes-header .chevron-icon"
+    );
+    if (content && chevron) {
+      this.toggleElement(content, chevron);
+    } else {
+      console.error("Attributes content or chevron not found");
+    }
+  }
+
+  toggleAttributeOptions(attributeElement) {
+    const options = attributeElement.querySelector(".attribute-options");
+    const chevron = attributeElement.querySelector(
+      ".attribute-header .chevron-icon"
+    );
+    this.toggleElement(options, chevron);
+  }
+
+  toggleElement(element, chevron) {
+    if (element.style.display === "none") {
+      element.style.display = "block";
+      chevron.innerHTML = "&#9650;";
+    } else {
+      element.style.display = "none";
+      chevron.innerHTML = "&#9660;";
+    }
+  }
+
+  getButtonText(type, isLastProduct) {
+    if (type === 1) {
+      return this.adapter.t("replace");
+    } else if (type === 2 && isLastProduct) {
+      return this.adapter.t("add");
+    } else {
+      return this.adapter.t("add_to_cart");
+    }
+  }
+
+  getCampaignTypeText(type) {
+    switch (type) {
+      case 1:
+        return this.adapter.t("replace_campaign");
+      case 2:
+        return this.adapter.t("upsell_campaign");
+      case 3:
+        return this.adapter.t("cross_sell_campaign");
+      default:
+        console.log(`Unknown campaign type: ${type}`);
+        return this.adapter.t("unknown_campaign");
+    }
   }
 
   getStyles() {
@@ -45,9 +200,7 @@ export class Product {
         font-size: 16px;
         margin-bottom: 10px;
       }
-      .product-description {
-        margin-bottom: 10px;
-      }
+ 
       .add-to-cart {
         background-color: #4CAF50;
         border: none;
@@ -67,6 +220,19 @@ export class Product {
       .attribute-select {
         margin-bottom: 5px;
       }
+
+      .product-action-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+
+    .campaign-type {
+      font-size: 14px;
+      color: #666;
+      margin-left: 10px;
+    }
     `;
   }
 
@@ -80,49 +246,33 @@ export class Product {
       <div class="product-price">${productData.price} ${
       productData.currency
     }</div>
-      <div class="product-description">${productData.description[lang]}</div>
+
       ${this.generateAttributesHTML(productData.attributes)}
-      <button class="add-to-cart" data-product-id="${productData.uuid}">${t(
-      "add_to_cart"
-    )}</button>
+      <button class="add-to-cart" data-product-id="${
+        productData.uuid
+      }">${this.adapter.t("add_to_cart")}</button>
     `;
   }
-
   generateAttributesHTML(attributes) {
-    if (!attributes || attributes.length === 0) return "";
-
     const lang = this.adapter.getLanguage();
-    return `
-      <div class="product-attributes">
-        ${attributes
-          .map(
-            (attr) => `
-          <select class="attribute-select" data-attribute-id="${attr.id}">
-            <option value="">${attr.name[lang]}</option>
-            ${attr.presets
-              .map(
-                (preset) => `
-              <option value="${preset.value[lang]}">${preset.value[lang]}</option>
-            `
-              )
-              .join("")}
-          </select>
-        `
-          )
-          .join("")}
+    return attributes
+      .map(
+        (attr) => `
+      <div class="product-attribute">
+        <div class="attribute-header" data-attribute-id="${attr.id}">
+          <span class="attribute-name">${
+            attr.name[lang] || attr.name.en || ""
+          }</span>
+          <span class="chevron-icon">&#9660;</span>
+        </div>
+        <div class="attribute-options" style="display: none;">
+          ${this.generateOptionsHTML(attr.presets, attr.id, lang)}
+        </div>
       </div>
-    `;
+    `
+      )
+      .join("");
   }
-
-  setupEventListeners() {
-    this.productElement.addEventListener("click", (e) => {
-      if (e.target.classList.contains("add-to-cart")) {
-        const productId = e.target.dataset.productId;
-        this.handleAddToCart(productId);
-      }
-    });
-  }
-
   async handleAddToCart(productId) {
     const selectedAttributes = this.getSelectedAttributes();
     const variants = await this.adapter.fetchProductVariants(
@@ -151,13 +301,30 @@ export class Product {
   getSelectedAttributes() {
     const selectedAttributes = [];
     this.productElement
-      .querySelectorAll(".attribute-select")
-      .forEach((select) => {
-        if (select.value) {
-          selectedAttributes.push(select.value);
+      .querySelectorAll(".attribute-options")
+      .forEach((optionsContainer) => {
+        const selectedOption = optionsContainer.querySelector(
+          'input[type="radio"]:checked'
+        );
+        if (selectedOption) {
+          selectedAttributes.push(selectedOption.value);
         }
       });
     return selectedAttributes;
+  }
+  generateOptionsHTML(presets, attributeId, lang) {
+    return presets
+      .map(
+        (preset) => `
+      <label class="attribute-option">
+        <input type="radio" name="attribute-${attributeId}" value="${
+          preset.id
+        }">
+        ${preset.value[lang] || preset.value.en || ""}
+      </label>
+    `
+      )
+      .join("");
   }
 
   update(productData) {

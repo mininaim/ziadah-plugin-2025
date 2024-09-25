@@ -1,7 +1,7 @@
 // plugin-element.js
 
 import { createAdapter, getPlatform } from "./adapters/adapterFactory";
-import { PopupFactory } from "./components/popups/PopupFactory";
+import { PopupFactory } from "./components/popups/factory/PopupFactory";
 import { campaign, restartCampaign } from "./campaign";
 import { setState, getState } from "./store";
 import { urlToCheck } from "./config";

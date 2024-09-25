@@ -1,9 +1,7 @@
-// src/components/popups/PopupFactory.js
-
-import { ModalPopup } from "./ModalPopup.js";
-import { OffcanvasPopup } from "./OffcanvasPopup.js";
-import { sanitizeCSS } from "../../utils/cssSanitizer.js";
-import { getStoreFontFamily, loadRubikFont } from "../../utils";
+import { ModalPopup } from "../modal/ModalPopup.js";
+import { OffcanvasPopup } from "../offcanvas/OffcanvasPopup.js";
+import { sanitizeCSS } from "../../../utils/cssSanitizer.js";
+import { getStoreFontFamily, loadRubikFont } from "../../../utils";
 
 export class PopupFactory {
   constructor(shadowRoot, adapter) {
@@ -16,8 +14,7 @@ export class PopupFactory {
 
   async loadFontIfNeeded() {
     if (!this.fontLoaded && this.fontFamily.includes("Rubik")) {
-      loadRubikFont();
-      await new Promise((resolve) => setTimeout(resolve, 100)); // Allow time for the font to load
+      await loadRubikFont();
       this.fontLoaded = true;
     }
   }

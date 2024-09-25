@@ -13,6 +13,11 @@ export const memoize = (fn) => {
   };
 };
 
+export function getLanguage() {
+  const state = getState();
+  return state.language || "en"; // Return 'en' as default if language is not set
+}
+
 export function removeDashes(data) {
   return String(data).split("-").join("");
 }
@@ -91,7 +96,7 @@ export function notifyUser(msg, err) {
 function createNotification(msg, err) {
   new Notification(err ? "Error" : "Success", {
     body: msg,
-    icon: err ? "/error-icon.png" : "/success-icon.png",
+    // icon: err ? "/error-icon.png" : "/success-icon.png",
   });
 }
 

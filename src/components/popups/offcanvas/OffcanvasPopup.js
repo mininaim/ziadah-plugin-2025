@@ -1,9 +1,9 @@
 // outdated
 
-import { AbstractPopup } from "./AbstractPopup";
-import { parseCustomCSS } from "../../utils/cssParser";
-import { sanitizeCSS } from "../../utils/cssSanitizer";
-import { getStoreFontFamily, loadRubikFont, t } from "../../utils";
+import { AbstractPopup } from "../abstract/AbstractPopup";
+import { parseCustomCSS } from "../../../utils/cssParser";
+import { sanitizeCSS } from "../../../utils/cssSanitizer";
+import { getStoreFontFamily, loadRubikFont, t } from "../../../utils";
 
 export class OffcanvasPopup extends AbstractPopup {
   constructor(shadowRoot, adapter, position = "right") {
